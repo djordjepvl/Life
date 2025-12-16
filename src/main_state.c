@@ -1,30 +1,36 @@
-#include "all.h"
+#include <main_state.h>
 
-static int w, h;
-static rafgl_raster_t raster;
-static rafgl_texture_t tex;
+int game_width;
+int game_height;
 
+rafgl_raster_t raster;
+rafgl_texture_t tex;
 
-int offset[2] = {0,0};
+player_t player;
 
 void main_state_init(GLFWwindow *window, void *args, int width, int height)
 {
-    w = width;
-    h = height;
-    rafgl_raster_init(&raster, w, h);
+    game_width = width;
+    game_height = height;
+    rafgl_raster_init(&raster, game_width, game_height);
     rafgl_texture_init(&tex);
-    printHello();
+    
+    player_init(&player, game_width/2, game_height/2);
+    player.enabled = 1;
 }
 
 
 void main_state_update(GLFWwindow *window, float delta_time, rafgl_game_data_t *game_data, void *args)
 {
-    int x,y;
-    for (y=0; y<h; y++){
-        for (x=0; x<w; x++) {
-            pixel_at_m(raster,x,y).rgba = rafgl_RGB(50,180,60);
-        }
-    }
+    //GAME LOGIC UPDATE
+    player_update(&player, delta_time, game_data);
+    
+    //DEBUG PRINTING
+    //printMousePos(game_data);
+
+    //FILLING RASTER
+    rafgl_raster_draw_rectangle(&raster,0,0,game_width,game_height,rafgl_RGB(44, 155, 219),1);
+    player_render(&player);
 }
 
 void main_state_render(GLFWwindow *window, void *args)
@@ -36,4 +42,13 @@ void main_state_render(GLFWwindow *window, void *args)
 void main_state_cleanup(GLFWwindow *window, void *args)
 {
 
+}
+
+//DEBUG:
+
+void printMousePos(rafgl_game_data_t *game_data) {
+    float x = game_data->mouse_pos_x;
+    float y = game_data->mouse_pos_y;
+    if (x > 0 && x < game_width && y > 0 && y < game_height)
+        printf("Mouse pos : (%f, %f) \n", game_data->mouse_pos_x, game_data->mouse_pos_y);
 }
