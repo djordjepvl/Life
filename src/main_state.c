@@ -1,8 +1,4 @@
-#include <main_state.h>
-#include <glad/glad.h>
-#include <math.h>
-
-#include <rafgl.h>
+#include "all.h"
 
 static int w, h;
 static rafgl_raster_t raster;
@@ -17,6 +13,7 @@ void main_state_init(GLFWwindow *window, void *args, int width, int height)
     h = height;
     rafgl_raster_init(&raster, w, h);
     rafgl_texture_init(&tex);
+    printHello();
 }
 
 
