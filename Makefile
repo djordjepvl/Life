@@ -13,7 +13,7 @@ OUT = main
 
 # Default flags
 CFLAGS = -Wall -DGLFW_INCLUDE_NONE
-IFLAGS = -I. -I./include
+IFLAGS = -I. -I./include -I./src
 
 # =========================
 # OS detection

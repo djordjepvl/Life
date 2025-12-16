@@ -297,8 +297,8 @@ void rafgl_raster_box_blur(rafgl_raster_t *result, rafgl_raster_t *tmp, rafgl_ra
 int rafgl_raster_draw_raster(rafgl_raster_t *to, rafgl_raster_t *from, int x, int y);
 
 void rafgl_raster_draw_line(rafgl_raster_t *raster, int x0, int y0, int x1, int y1, uint32_t colour);
-void rafgl_raster_draw_circle(rafgl_raster_t *raster, int cx, int cy, int r, uint32_t colour);
-void rafgl_raster_draw_rectangle(rafgl_raster_t *raster, int x0, int y0, int w, int h, uint32_t colour);
+void rafgl_raster_draw_circle(rafgl_raster_t *raster, int cx, int cy, int r, uint32_t colour, int fill);
+void rafgl_raster_draw_rectangle(rafgl_raster_t *raster, int x0, int y0, int w, int h, uint32_t colour, int fill);
 
 void rafgl_raster_bilinear_upsample(rafgl_raster_t *to, rafgl_raster_t *from);
 
@@ -921,7 +921,7 @@ void rafgl_raster_draw_line(rafgl_raster_t *raster, int x0, int y0, int x1, int 
 }
 
 /* DOES NOT DO CLIPPING! */
-void rafgl_raster_draw_circle(rafgl_raster_t *raster, int cx, int cy, int r, uint32_t colour)
+void rafgl_raster_draw_circle(rafgl_raster_t *raster, int cx, int cy, int r, uint32_t colour, int fill)
 {
     int x = -r, y = 0, err = 2-2*r; /* II. Quadrant */
     do {
@@ -935,12 +935,30 @@ void rafgl_raster_draw_circle(rafgl_raster_t *raster, int cx, int cy, int r, uin
     } while (x < 0);
 }
 
-void rafgl_raster_draw_rectangle(rafgl_raster_t *raster, int x0, int y0, int w, int h, uint32_t colour)
+void rafgl_raster_draw_rectangle(rafgl_raster_t *raster, int x, int y, int w, int h, uint32_t colour, int fill)
 {
-    rafgl_raster_draw_line(raster, x0, y0, x0 + w, y0, colour);
-    rafgl_raster_draw_line(raster, x0, y0 + h, x0 + w, y0 + h, colour);
-    rafgl_raster_draw_line(raster, x0, y0, x0, y0 + h, colour);
-    rafgl_raster_draw_line(raster, x0 + w, y0, x0 + w, y0 + h, colour);
+    if (!raster || w <= 0 || h <= 0) return;
+
+    int x0 = x < 0 ? 0 : x;
+    int y0 = y < 0 ? 0 : y;
+    int x1 = (x + w > raster->width) ? raster->width : x + w;
+    int y1 = (y + h > raster->height) ? raster->height : y + h;
+    
+    if (x0 >= x1 || y0 >= y1) return;
+
+    if (fill == 0) {
+        rafgl_raster_draw_line(raster, x0, y0, x1, y0, colour);
+        rafgl_raster_draw_line(raster, x0, y1, x1, y1, colour);
+        rafgl_raster_draw_line(raster, x0, y0, x0, y1, colour);
+        rafgl_raster_draw_line(raster, x1, y0, x1, y1, colour);
+    }
+    else {
+        for (int y = y0; y < y1; y++) {
+        for (int x = x0; x < x1; x++) {
+            pixel_at_pm(raster, x, y).rgba = colour;
+        }
+    }
+    }
 }
 
 void rafgl_raster_bilinear_upsample(rafgl_raster_t *to, rafgl_raster_t *from)
