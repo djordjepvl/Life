@@ -924,6 +924,7 @@ void rafgl_raster_draw_line(rafgl_raster_t *raster, int x0, int y0, int x1, int 
 void rafgl_raster_draw_circle(rafgl_raster_t *raster, int cx, int cy, int r, uint32_t colour, int fill)
 {
     int x = -r, y = 0, err = 2-2*r; /* II. Quadrant */
+    int cnt = 0;
     do {
         pixel_at_pm(raster, cx-x, cy+y).rgba = colour; /*   I. Quadrant */
         pixel_at_pm(raster, cx-y, cy-x).rgba = colour; /*  II. Quadrant */
