@@ -15,7 +15,7 @@ void main_state_init(GLFWwindow *window, void *args, int width, int height)
     rafgl_raster_init(&raster, game_width, game_height);
     rafgl_texture_init(&tex);
     
-    player_init(&player, game_height/2, game_width/2);
+    player_init(&player, game_width/2, game_height/2);
     player.enabled = 1;
 }
 

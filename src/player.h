@@ -6,6 +6,12 @@ typedef struct {
     float dx, dy;
     float size;
     int width, height;
+    float accel, damp;
+    
+    //MUST BE >0
+    int border_edge, border_size;
+
+    float top_border_damp, bottom_border_damp, left_border_damp, right_border_damp;
     
     rafgl_pixel_rgb_t color;
 } player_t;
