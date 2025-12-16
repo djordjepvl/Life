@@ -5,7 +5,7 @@ void player_init(player_t *p, float x, float y) {
     p->x = x;
     p->y = y;
     p->dx = 0;
-    p->dy = 0;
+    p->dy = 1;
     p->size = 30;
 
     p->color.rgba = rafgl_RGB(245, 183, 39);
