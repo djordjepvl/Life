@@ -10,14 +10,25 @@ void player_init(player_t *p, float x, float y) {
     p->v_border_damp = 1;
 
     p->size = 130;
-    p->accel =1.5;
-    p->damp = 0.95;
+    p->accel =0.01;
+    p->damp = 0.9995;
     p->color.rgba = rafgl_RGB(245, 183, 39);
     player_update_dimensions(p);
 }
 
 void player_update(player_t *p, float delta_time, rafgl_game_data_t *game_data) {
     if (!p->enabled) return;
+
+    if (game_data->keys_down[GLFW_KEY_W]) {
+        p->size = rafgl_clampf(p->size+0.8f, PLAYER_SIZE_START, PLAYER_SIZE_MAX);
+        player_update_dimensions(p);
+    }
+    if (game_data->keys_down[GLFW_KEY_S]) {
+        p->size = rafgl_clampf(p->size-0.8f, PLAYER_SIZE_START, PLAYER_SIZE_MAX);
+        player_update_dimensions(p);
+    }
+
+    // TODO: redo physics to use delta_time
 
     p->v_border_damp = 
         ((p->y < border_size + border_edge) ? ( (p->y - border_edge) / border_size) : 1.0) -
@@ -80,4 +91,9 @@ void player_render(player_t *p) {
 void player_update_dimensions(player_t *p) {
     p->width = p->size;
     p->height = p->size/2;
+    float t = 1.0f*p->size / PLAYER_SIZE_MAX;
+    printf("%f \n", t);
+    t = sqrt(t);
+    p->accel = PLAYER_ACCEL_START + t * (PLAYER_ACCEL_END - PLAYER_ACCEL_START);
+    p->damp  = PLAYER_DAMP_START  + t * (PLAYER_DAMP_END  - PLAYER_DAMP_START);
 }

@@ -8,7 +8,6 @@
 #define RAFGL_IMPLEMENTATION
 #include <rafgl.h>
 
-#include <game_constants.h>
 #include <main_state.h>
 
 int main(int argc, char *argv[])
@@ -16,7 +15,7 @@ int main(int argc, char *argv[])
 
     rafgl_game_t game;
 
-    rafgl_game_init(&game, "Life", 1200, 900, 0);
+    rafgl_game_init(&game, "Life", WINDOW_WIDTH, WINDOW_HEIGHT, 0);
     rafgl_game_add_named_game_state(&game, main_state);
     rafgl_game_start(&game, NULL);
 

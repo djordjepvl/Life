@@ -9,6 +9,7 @@
 #include <math.h>
 
 //Game headers
+#include <game_constants.h>
 #include <player.h>
 
 void main_state_init(GLFWwindow *window, void *args, int width, int height);
