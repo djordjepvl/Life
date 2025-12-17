@@ -6,16 +6,12 @@ void player_init(player_t *p, float x, float y) {
     p->y = y;
     p->dx = 0;
     p->dy = 0;
-    p->size = 130;
-
-    p->accel =2.3;
-    p->damp = 0.95;
-    //p->accel =0.1;
-    //p->damp = 0.995;
-    p->border_size = 40;
-    p->border_edge = 30;
     p->h_border_damp = 1;
     p->v_border_damp = 1;
+
+    p->size = 130;
+    p->accel =1.5;
+    p->damp = 0.95;
     p->color.rgba = rafgl_RGB(245, 183, 39);
     player_update_dimensions(p);
 }
@@ -24,14 +20,13 @@ void player_update(player_t *p, float delta_time, rafgl_game_data_t *game_data) 
     if (!p->enabled) return;
 
     p->v_border_damp = 
-        ((p->y < p->border_size + p->border_edge) ? ( (p->y - p->border_edge) / p->border_size) : 1.0) -
-        ((game_height - p->y < p->border_size +p->border_edge) ? (((game_height - p->y) - p->border_edge) / p->border_size) : 1.0);
+        ((p->y < border_size + border_edge) ? ( (p->y - border_edge) / border_size) : 1.0) -
+        ((game_height - p->y < border_size + border_edge) ? (((game_height - p->y) - border_edge) / border_size) : 1.0);
     
     p->h_border_damp = 
-        ((p->x < p->border_size +p->border_edge) ? ( (p->x - p->border_edge) / p->border_size) : 1.0f) -
-        ((game_width - p->x < p->border_size +p->border_edge) ? (((game_width - p->x) - p->border_edge) / p->border_size) : 1.0f);
+        ((p->x < border_size +border_edge) ? ( (p->x - border_edge) / border_size) : 1.0f) -
+        ((game_width - p->x < border_size +border_edge) ? (((game_width - p->x) - border_edge) / border_size) : 1.0f);
     
-    printf("%f \n", p->v_border_damp);
     
     float ix = 0.0, iy = 0.0;
 
@@ -67,8 +62,6 @@ void player_update(player_t *p, float delta_time, rafgl_game_data_t *game_data) 
 
     p->x += p->dx;
     p->y += p->dy;
-
-    
 
     p->x -= p->h_border_damp * p->h_border_damp * p->h_border_damp * 0.7;
     p->y -= p->v_border_damp * p->v_border_damp * p->v_border_damp * 0.7;

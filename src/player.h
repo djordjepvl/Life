@@ -7,9 +7,6 @@ typedef struct {
     float size;
     int width, height;
     float accel, damp;
-    
-    //MUST BE >0
-    int border_edge, border_size;
 
     float h_border_damp, v_border_damp;
     

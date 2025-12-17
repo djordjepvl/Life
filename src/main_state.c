@@ -8,6 +8,11 @@ rafgl_texture_t tex;
 
 player_t player;
 
+//MUST BE >0
+int border_size = 40;
+int border_edge = 30;
+
+
 void main_state_init(GLFWwindow *window, void *args, int width, int height)
 {
     game_width = width;

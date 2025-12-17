@@ -26,3 +26,8 @@ extern rafgl_texture_t tex;
 
 extern player_t player;
 
+
+
+extern int border_size;
+extern int border_edge;
+
