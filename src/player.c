@@ -6,10 +6,12 @@ void player_init(player_t *p, float x, float y) {
     p->y = y;
     p->dx = 0;
     p->dy = 0;
-    p->size = 30;
+    p->size = 130;
 
-    p->accel = 2;
-    p->damp = 0.9;
+    p->accel =2.3;
+    p->damp = 0.95;
+    //p->accel =0.1;
+    //p->damp = 0.995;
     p->border_size = 40;
     p->border_edge = 30;
     p->h_border_damp = 1;
@@ -20,7 +22,7 @@ void player_init(player_t *p, float x, float y) {
 
 void player_update(player_t *p, float delta_time, rafgl_game_data_t *game_data) {
     if (!p->enabled) return;
-    
+
     p->v_border_damp = 
         ((p->y < p->border_size + p->border_edge) ? ( (p->y - p->border_edge) / p->border_size) : 1.0) -
         ((game_height - p->y < p->border_size +p->border_edge) ? (((game_height - p->y) - p->border_edge) / p->border_size) : 1.0);
@@ -31,22 +33,42 @@ void player_update(player_t *p, float delta_time, rafgl_game_data_t *game_data) 
     
     printf("%f \n", p->v_border_damp);
     
+    float ix = 0.0, iy = 0.0;
 
     if (game_data->keys_down[RAFGL_KEY_UP]) {
-        p->dy-= p->accel* (1+p->v_border_damp);
+        iy-= 1.0;
     }
     if (game_data->keys_down[RAFGL_KEY_DOWN]) {
-        p->dy+= p->accel* (1-p->v_border_damp);
+        iy+= 1.0;
     }
     if (game_data->keys_down[RAFGL_KEY_LEFT]) {
-        p->dx-= p->accel* (1+p->h_border_damp);
+        ix-= 1.0;
     }
     if (game_data->keys_down[RAFGL_KEY_RIGHT]) {
-        p->dx+= p->accel* (1-p->h_border_damp);
+        ix+= 1.0;
+    }
+
+    if (ix != 0.0f || iy != 0.0f) {
+        float len = sqrtf(ix*ix + iy*iy);
+        ix /= len;
+        iy /= len;
+
+        float ax = ix * p->accel;
+        float ay = iy * p->accel;
+
+        float elastic = cbrtf(p->damp / p->accel);
+
+        ax *= (1.0f - ix * p->h_border_damp*elastic);
+        ay *= (1.0f - iy * p->v_border_damp*elastic);
+
+        p->dx += ax;
+        p->dy += ay;
     }
 
     p->x += p->dx;
     p->y += p->dy;
+
+    
 
     p->x -= p->h_border_damp * p->h_border_damp * p->h_border_damp * 0.7;
     p->y -= p->v_border_damp * p->v_border_damp * p->v_border_damp * 0.7;
