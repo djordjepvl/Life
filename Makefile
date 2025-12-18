@@ -6,7 +6,9 @@ CC = gcc
 # List all your .c files here
 IN = main.c \
      src/main_state.c \
+     src/game_constants.c \
      src/player.c \
+     src/fish.c \
      src/glad/glad.c
 
 OUT = main

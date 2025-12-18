@@ -1,6 +1,6 @@
 #include <main_state.h>
 
-void player_init(player_t *p, float x, float y) {
+void player_init(player_t *p, float x, float y, uint32_t color) {
     p->enabled = 0;
     p->x = x;
     p->y = y;
@@ -12,11 +12,24 @@ void player_init(player_t *p, float x, float y) {
     p->size = 130;
     p->accel =0.01;
     p->damp = 0.9995;
-    p->color.rgba = rafgl_RGB(245, 183, 39);
+    p->color.rgba = color;
     player_update_dimensions(p);
 }
 
 void player_update(player_t *p, float delta_time, rafgl_game_data_t *game_data) {
+    player_update_pos(p, delta_time, game_data);
+    player_handle_collisions(p);
+}
+
+void player_render(player_t *p) {
+    if (!p->enabled) return;
+    rafgl_raster_draw_rectangle(&raster, 
+        p->x - p->width/2, p->y - p->height/2,
+        p->width, p->height, p->color.rgba, 1);
+}
+
+
+void player_update_pos(player_t *p, float delta_time, rafgl_game_data_t *game_data) {
     if (!p->enabled) return;
 
     if (game_data->keys_down[GLFW_KEY_W]) {
@@ -31,12 +44,12 @@ void player_update(player_t *p, float delta_time, rafgl_game_data_t *game_data) 
     // TODO: redo physics to use delta_time
 
     p->v_border_damp = 
-        ((p->y < border_size + border_edge) ? ( (p->y - border_edge) / border_size) : 1.0) -
-        ((game_height - p->y < border_size + border_edge) ? (((game_height - p->y) - border_edge) / border_size) : 1.0);
+        ((p->y < BORDER_SIZE + BORDER_EDGE) ? ( (p->y - BORDER_EDGE) / BORDER_SIZE) : 1.0) -
+        ((game_height - p->y < BORDER_SIZE + BORDER_EDGE) ? (((game_height - p->y) - BORDER_EDGE) / BORDER_SIZE) : 1.0);
     
     p->h_border_damp = 
-        ((p->x < border_size +border_edge) ? ( (p->x - border_edge) / border_size) : 1.0f) -
-        ((game_width - p->x < border_size +border_edge) ? (((game_width - p->x) - border_edge) / border_size) : 1.0f);
+        ((p->x < BORDER_SIZE + BORDER_EDGE) ? ( (p->x - BORDER_EDGE) / BORDER_SIZE) : 1.0f) -
+        ((game_width - p->x < BORDER_SIZE + BORDER_EDGE) ? (((game_width - p->x) - BORDER_EDGE) / BORDER_SIZE) : 1.0f);
     
     
     float ix = 0.0, iy = 0.0;
@@ -81,20 +94,13 @@ void player_update(player_t *p, float delta_time, rafgl_game_data_t *game_data) 
     p->dy = p->dy*p->damp;
 }
 
-void player_render(player_t *p) {
-    if (!p->enabled) return;
-    rafgl_raster_draw_rectangle(&raster, 
-        p->x - p->width/2, p->y - p->height/2,
-        p->width, p->height, p->color.rgba, 1);
-}
 
 void player_update_dimensions(player_t *p) {
     p->width = p->size;
     p->height = p->size/2;
     float t = 1.0f*p->size / PLAYER_SIZE_MAX;
-    t = sqrtf(sqrtf(sqrtf(t)));
+    t = cbrt(cbrtf(cbrtf(cbrtf(t))));
     
     p->accel = PLAYER_ACCEL_START + t * (PLAYER_ACCEL_END - PLAYER_ACCEL_START);
     p->damp  = PLAYER_DAMP_START  + t * (PLAYER_DAMP_END  - PLAYER_DAMP_START);
-    printf("%f \n", p->accel);
 }

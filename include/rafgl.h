@@ -256,6 +256,10 @@ int rafgl_list_test(void);
 
 /* random float in the range of [0, 1) */
 float randf(void);
+/* chance p to return 1, otherwise 0*/
+int chance(float p);
+/* random chance to return 1 or -1*/
+int random_sign(void);
 /* abs difference between two numbers */
 float rafgl_distance1D(float x1, float x2);
 /* euclidean distance between 2D points */
@@ -1153,6 +1157,14 @@ void rafgl_button_show(rafgl_raster_t *target, rafgl_button_t *btn)
 inline float randf(void)
 {
     return 1.0f * rand() / (RAND_MAX + 1);
+}
+int chance(float p) {
+    if (p <= 0.0f) return 0;
+    if (p >= 1.0f) return 1;
+    return randf() < p;
+}
+inline int random_sign(void) {
+    return (rand() % 2) ? 1 : -1;
 }
 
 inline float rafgl_distance1D(float x1, float x2)
