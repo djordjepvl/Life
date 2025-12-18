@@ -18,6 +18,8 @@ void main_state_update(GLFWwindow *window, float delta_time, rafgl_game_data_t *
 void main_state_render(GLFWwindow *window, void *args);
 void main_state_cleanup(GLFWwindow *window, void *args);
 
+void detect_collision(float delta_time);
+
 void printMousePos(rafgl_game_data_t *game_data);
 
 

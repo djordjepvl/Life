@@ -18,7 +18,6 @@ void player_init(player_t *p, float x, float y, uint32_t color) {
 
 void player_update(player_t *p, float delta_time, rafgl_game_data_t *game_data) {
     player_update_pos(p, delta_time, game_data);
-    player_handle_collisions(p);
 }
 
 void player_render(player_t *p) {

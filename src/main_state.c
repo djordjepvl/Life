@@ -30,7 +30,9 @@ void main_state_update(GLFWwindow *window, float delta_time, rafgl_game_data_t *
     player_update(&player, delta_time, game_data);
     fish_array_update(delta_time, game_data);
 
-    
+    //COLLISION CHECKS
+    detect_collision(delta_time);
+
     //DEBUG PRINTING
     //printMousePos(game_data);
 
@@ -49,6 +51,22 @@ void main_state_render(GLFWwindow *window, void *args)
 void main_state_cleanup(GLFWwindow *window, void *args)
 {
 
+}
+
+
+//COLLISION
+
+void detect_collision(float delta_time) {
+    for (int i=0; i<FISH_MAX_COUNT; i++) {
+        if ( 
+            player.x-player.width/2 < fish[i].x+fish[i].width/2 &&
+            player.x+player.width/2 > fish[i].x-fish[i].width/2 &&
+            player.y-player.height/2 < fish[i].y+fish[i].height/2 &&
+            player.y+player.height/2 > fish[i].y-fish[i].height/2
+        ) {
+            printf("colliding with fish %i \n", i);
+        }
+    }
 }
 
 //DEBUG:

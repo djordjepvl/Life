@@ -33,8 +33,8 @@ void fish_array_disable() {
 
 void fish_init(fish_t *f) {
     f->enabled = 0;
-    f->x = 0;
-    f->y = 0;
+    f->x = -9999;
+    f->y = -9999;
     f->dx = 0;
     f->dy = 0;
     f->speed = 0;
