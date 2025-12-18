@@ -33,8 +33,8 @@ void fish_array_disable() {
 
 void fish_init(fish_t *f) {
     f->enabled = 0;
-    f->x = -9999;
-    f->y = -9999;
+    f->x = -0;
+    f->y = -0;
     f->dx = 0;
     f->dy = 0;
     f->speed = 0;
@@ -80,8 +80,7 @@ void fish_random_spawn(fish_t *f) {
     float s = randf();
     s = s*s*s;
     f->size = rafgl_lerpf(FISH_MIN_SIZE, FISH_MAX_SIZE, s);
-    f->width = f->size;
-    f->height = f->size/2;
+    fish_update_dimensions(f);
     f->speed = (FISH_BASE_SPEED + FISH_SPEED_VAR*randf()*random_sign() ) * __max((1.0f-s), FISH_MIN_SPEED);
     f->y = randf() * game_height;
 
@@ -96,4 +95,9 @@ void fish_random_spawn(fish_t *f) {
         f->dx = - f->speed;
         f->x = game_width + f->width/2 + 50;
     }
+}
+
+void fish_update_dimensions(fish_t *f) {
+    f->width = f->size;
+    f->height = f->size/2;
 }

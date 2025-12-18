@@ -1,12 +1,17 @@
 #include <main_state.h>
 
 //GLOBAL
-const int WINDOW_WIDTH = 1500;
-const int WINDOW_HEIGHT = 1000;
+
+const int WINDOW_WIDTH = 1600;
+const int WINDOW_HEIGHT = 900;
 const int BORDER_SIZE = 40; //MUST BE >0
 const int BORDER_EDGE = 30; //MUST BE >0
 
+//When fish 1 eats fish 2, fish 1's size is increased by fish2's size multiplied by this
+const float EAT_MULTIPLIER = 0.1f;
+
 //PLAYER
+
 const uint32_t PLAYER_COLOR = rafgl_RGB(245, 183, 39);
 
 const float PLAYER_ACCEL_START = 6.0f;
@@ -19,6 +24,7 @@ const float PLAYER_SIZE_START = 30.0f;
 const float PLAYER_SIZE_MAX  = 2000.0f;
 
 //FISH
+
 const float FISH_SPAWN_FREQUENCY = 0.4f;
 
 const uint32_t FISH_BASE_COLOR = rafgl_RGB(235, 173, 35);

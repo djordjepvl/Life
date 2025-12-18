@@ -59,13 +59,28 @@ void main_state_cleanup(GLFWwindow *window, void *args)
 void detect_collision(float delta_time) {
     for (int i=0; i<FISH_MAX_COUNT; i++) {
         if ( 
+            fish[i].enabled &&
+            player.enabled &&
             player.x-player.width/2 < fish[i].x+fish[i].width/2 &&
             player.x+player.width/2 > fish[i].x-fish[i].width/2 &&
             player.y-player.height/2 < fish[i].y+fish[i].height/2 &&
             player.y+player.height/2 > fish[i].y-fish[i].height/2
         ) {
-            printf("colliding with fish %i \n", i);
+            handle_collision(i, delta_time);
         }
+    }
+}
+
+void handle_collision(int i, float delta_time) {
+    if (player.size > fish[i].size) {
+        fish[i].enabled = 0;
+        player.size += fish[i].size * EAT_MULTIPLIER;
+        player_update_dimensions(&player);
+    }
+    else {
+        player.enabled = 0;
+        fish[i].size += player.size * EAT_MULTIPLIER;
+        fish_update_dimensions(&fish[i]);
     }
 }
 

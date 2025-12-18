@@ -5,6 +5,7 @@ extern const int WINDOW_WIDTH;
 extern const int WINDOW_HEIGHT;
 extern const int BORDER_SIZE;
 extern const int BORDER_EDGE;
+extern const float EAT_MULTIPLIER;
 
 //PLAYER
 extern const uint32_t PLAYER_COLOR;
