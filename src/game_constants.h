@@ -16,8 +16,9 @@ extern const float PLAYER_ACCEL_END;
 extern const float PLAYER_DAMP_START;
 extern const float PLAYER_DAMP_END;
 
-extern const float PLAYER_SIZE_START;
-extern const float PLAYER_SIZE_MAX;
+extern const float PLAYER_START_SIZE;
+extern const float PLAYER_MIN_SIZE;
+extern const float PLAYER_MAX_SIZE;
 
 // FISH
 #define FISH_MAX_COUNT 20

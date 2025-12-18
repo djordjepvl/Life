@@ -18,4 +18,4 @@ void player_update(player_t *p, float delta_time, rafgl_game_data_t *game_data);
 void player_render(player_t *p);
 
 void player_update_pos(player_t *p, float delta_time, rafgl_game_data_t *game_data);
-void player_update_dimensions(player_t *p);
+void player_set_size(player_t *p, float new_size);

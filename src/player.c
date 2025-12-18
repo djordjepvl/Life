@@ -9,11 +9,8 @@ void player_init(player_t *p, float x, float y, uint32_t color) {
     p->h_border_damp = 1;
     p->v_border_damp = 1;
 
-    p->size = 130;
-    p->accel =0.01;
-    p->damp = 0.9995;
+    player_set_size(p, PLAYER_START_SIZE);
     p->color.rgba = color;
-    player_update_dimensions(p);
 }
 
 void player_update(player_t *p, float delta_time, rafgl_game_data_t *game_data) {
@@ -31,14 +28,9 @@ void player_render(player_t *p) {
 void player_update_pos(player_t *p, float delta_time, rafgl_game_data_t *game_data) {
     if (!p->enabled) return;
 
-    if (game_data->keys_down[GLFW_KEY_W]) {
-        p->size = rafgl_clampf(p->size+0.8f, PLAYER_SIZE_START, PLAYER_SIZE_MAX);
-        player_update_dimensions(p);
-    }
-    if (game_data->keys_down[GLFW_KEY_S]) {
-        p->size = rafgl_clampf(p->size-0.8f, PLAYER_SIZE_START, PLAYER_SIZE_MAX);
-        player_update_dimensions(p);
-    }
+    if (game_data->keys_down[GLFW_KEY_W]) player_set_size(p, p->size+0.8f);
+    if (game_data->keys_down[GLFW_KEY_S]) player_set_size(p, p->size-0.8f);
+    
 
     // TODO: redo physics to use delta_time
 
@@ -94,10 +86,11 @@ void player_update_pos(player_t *p, float delta_time, rafgl_game_data_t *game_da
 }
 
 
-void player_update_dimensions(player_t *p) {
+void player_set_size(player_t *p, float new_size) {
+    p->size = rafgl_clampf(new_size, PLAYER_MIN_SIZE, PLAYER_MAX_SIZE);
     p->width = p->size;
     p->height = p->size/2;
-    float t = 1.0f*p->size / PLAYER_SIZE_MAX;
+    float t = 1.0f*p->size / PLAYER_MAX_SIZE;
     t = cbrt(cbrtf(cbrtf(cbrtf(t))));
     
     p->accel = PLAYER_ACCEL_START + t * (PLAYER_ACCEL_END - PLAYER_ACCEL_START);

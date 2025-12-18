@@ -27,4 +27,4 @@ void fish_update(fish_t *f, float delta_time, rafgl_game_data_t *game_data);
 void fish_render(fish_t *f);
 
 void fish_random_spawn(fish_t *f);
-void fish_update_dimensions(fish_t *f);
+void fish_set_size(fish_t *f, float new_size);

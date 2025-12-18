@@ -53,7 +53,7 @@ void fish_update(fish_t *f, float delta_time, rafgl_game_data_t *game_data) {
         else return;
     }
 
-    f->x += f->dx;
+    f->x += f->dx * delta_time;
 
     //despawn fish when it leaves the screen
     if (f->dx < 0.0f && f->x < -f->width/2 - 50) f->enabled = 0;
@@ -78,9 +78,8 @@ void fish_random_spawn(fish_t *f) {
     
     //set random size, speed and height
     float s = randf();
-    s = s*s*s;
-    f->size = rafgl_lerpf(FISH_MIN_SIZE, FISH_MAX_SIZE, s);
-    fish_update_dimensions(f);
+    s = s*s*s*s*s;
+    fish_set_size(f, rafgl_lerpf(FISH_MIN_SIZE, FISH_MAX_SIZE, s));
     f->speed = (FISH_BASE_SPEED + FISH_SPEED_VAR*randf()*random_sign() ) * __max((1.0f-s), FISH_MIN_SPEED);
     f->y = randf() * game_height;
 
@@ -97,7 +96,8 @@ void fish_random_spawn(fish_t *f) {
     }
 }
 
-void fish_update_dimensions(fish_t *f) {
+void fish_set_size(fish_t *f, float new_size) {
+    f->size = rafgl_clampf(new_size, FISH_MIN_SIZE, FISH_MAX_SIZE);
     f->width = f->size;
     f->height = f->size/2;
 }

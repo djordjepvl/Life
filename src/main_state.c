@@ -74,13 +74,11 @@ void detect_collision(float delta_time) {
 void handle_collision(int i, float delta_time) {
     if (player.size > fish[i].size) {
         fish[i].enabled = 0;
-        player.size += fish[i].size * EAT_MULTIPLIER;
-        player_update_dimensions(&player);
+        player_set_size(&player, player.size + fish[i].size * EAT_MULTIPLIER);
     }
     else {
         player.enabled = 0;
-        fish[i].size += player.size * EAT_MULTIPLIER;
-        fish_update_dimensions(&fish[i]);
+        fish_set_size(&fish[i], fish[i].size + player.size * EAT_MULTIPLIER);
     }
 }
 
