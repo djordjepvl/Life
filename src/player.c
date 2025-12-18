@@ -77,6 +77,7 @@ void player_update_pos(player_t *p, float delta_time, rafgl_game_data_t *game_da
         p->dy += ay * frame_scale;
     }
 
+    
     p->x += p->dx * frame_scale;
     p->y += p->dy * frame_scale;
 
