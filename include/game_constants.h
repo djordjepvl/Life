@@ -4,7 +4,6 @@
 #define WINDOW_WIDTH (1200)
 #define WINDOW_HEIGHT (900)
 
-
 #define PLAYER_ACCEL_START (0.55f)
 #define PLAYER_ACCEL_END   (0.005f)
 
