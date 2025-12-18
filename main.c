@@ -1,18 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-
 #define RAFGL_IMPLEMENTATION
 #include <rafgl.h>
+
 
 #include <main_state.h>
 
 int main(int argc, char *argv[])
 {
-
+    srand((unsigned int)time(NULL));
+    
     rafgl_game_t game;
 
     rafgl_game_init(&game, "Life", WINDOW_WIDTH, WINDOW_HEIGHT, 0);
