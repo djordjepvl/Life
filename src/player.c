@@ -25,6 +25,7 @@ void player_render(player_t *p) {
 }
 
 
+
 void player_update_pos(player_t *p, float delta_time, rafgl_game_data_t *game_data) {
     if (!p->enabled) return;
 
@@ -32,7 +33,8 @@ void player_update_pos(player_t *p, float delta_time, rafgl_game_data_t *game_da
     if (game_data->keys_down[GLFW_KEY_S]) player_set_size(p, p->size-0.8f);
     
 
-    // TODO: redo physics to use delta_time
+    const float BASE_FPS = 240.0f;
+    float frame_scale = delta_time * BASE_FPS;
 
     p->v_border_damp = 
         ((p->y < BORDER_SIZE + BORDER_EDGE) ? ( (p->y - BORDER_EDGE) / BORDER_SIZE) : 1.0) -
@@ -71,18 +73,19 @@ void player_update_pos(player_t *p, float delta_time, rafgl_game_data_t *game_da
         ax *= (1.0f - ix * p->h_border_damp*elastic);
         ay *= (1.0f - iy * p->v_border_damp*elastic);
 
-        p->dx += ax;
-        p->dy += ay;
+        p->dx += ax * frame_scale;
+        p->dy += ay * frame_scale;
     }
 
-    p->x += p->dx;
-    p->y += p->dy;
+    p->x += p->dx * frame_scale;
+    p->y += p->dy * frame_scale;
 
-    p->x -= p->h_border_damp * p->h_border_damp * p->h_border_damp * 0.7;
-    p->y -= p->v_border_damp * p->v_border_damp * p->v_border_damp * 0.7;
+    p->x -= p->h_border_damp * p->h_border_damp * p->h_border_damp * 0.7 * frame_scale;
+    p->y -= p->v_border_damp * p->v_border_damp * p->v_border_damp * 0.7 * frame_scale;
 
-    p->dx = p->dx*p->damp;
-    p->dy = p->dy*p->damp;
+    float damp_dt = powf(p->damp, frame_scale);
+    p->dx *= damp_dt;
+    p->dy *= damp_dt;
 }
 
 
