@@ -94,8 +94,13 @@ void player_set_size(player_t *p, float new_size) {
     p->width = p->size;
     p->height = p->size/2;
     float t = 1.0f*p->size / PLAYER_MAX_SIZE;
-    t = 1.0f - powf(0.5f, t * 15.0f);
+    t = 1.0f - powf(0.5f, t * 19.0f);
     
     p->accel = PLAYER_ACCEL_START + t * (PLAYER_ACCEL_END - PLAYER_ACCEL_START);
     p->damp  = PLAYER_DAMP_START  + t * (PLAYER_DAMP_END  - PLAYER_DAMP_START);
+}
+
+void player_respawn(player_t *p) {
+    player_init(p, 1.0f * game_width/2, 1.0f * game_height/2, p->color.rgba);
+    p->enabled = 1;
 }

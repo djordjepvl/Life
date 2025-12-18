@@ -26,6 +26,9 @@ void main_state_init(GLFWwindow *window, void *args, int width, int height)
 
 void main_state_update(GLFWwindow *window, float delta_time, rafgl_game_data_t *game_data, void *args)
 {
+    if (game_data->keys_pressed[RAFGL_KEY_D]) fish_array_disable();
+    if (game_data->keys_pressed[RAFGL_KEY_E]) fish_array_enable();
+    if (game_data->keys_pressed[GLFW_KEY_R]) player_respawn(&player);
     //GAME LOGIC UPDATE
     player_update(&player, delta_time, game_data);
     fish_array_update(delta_time, game_data);
