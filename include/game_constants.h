@@ -5,11 +5,11 @@
 #define WINDOW_HEIGHT (900)
 
 
-#define PLAYER_ACCEL_START (0.7f)
-#define PLAYER_ACCEL_END   (0.02f)
+#define PLAYER_ACCEL_START (0.55f)
+#define PLAYER_ACCEL_END   (0.005f)
 
 #define PLAYER_DAMP_START  (0.97f)
-#define PLAYER_DAMP_END    (0.999f)
+#define PLAYER_DAMP_END    (0.9993f)
 
 #define PLAYER_SIZE_START  (30.0f)
 #define PLAYER_SIZE_MAX    (1000.0f)

@@ -92,8 +92,9 @@ void player_update_dimensions(player_t *p) {
     p->width = p->size;
     p->height = p->size/2;
     float t = 1.0f*p->size / PLAYER_SIZE_MAX;
-    printf("%f \n", t);
-    t = sqrt(t);
+    t = sqrtf(sqrtf(sqrtf(t)));
+    
     p->accel = PLAYER_ACCEL_START + t * (PLAYER_ACCEL_END - PLAYER_ACCEL_START);
     p->damp  = PLAYER_DAMP_START  + t * (PLAYER_DAMP_END  - PLAYER_DAMP_START);
+    printf("%f \n", p->accel);
 }
