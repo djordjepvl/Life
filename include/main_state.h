@@ -27,6 +27,8 @@ void printMousePos(rafgl_game_data_t *game_data);
 
 //Main state variables
 extern int game_height, game_width;
+
+extern rafgl_spritesheet_t testsprite;
 extern rafgl_raster_t raster;
 extern rafgl_texture_t tex;
 

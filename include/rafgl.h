@@ -644,34 +644,49 @@ void rafgl_spritesheet_init(rafgl_spritesheet_t *spritesheet, const char *sheet_
 
 void rafgl_raster_draw_spritesheet(rafgl_raster_t *raster, rafgl_spritesheet_t *spritesheet, int sheet_x, int sheet_y, int x, int y)
 {
-    int fl, fr, fu, fd;
+    int fl, fr, fu, fd, fw, fh;
     int flc, frc, fuc, fdc;
     int xi, yi;
 
+    rafgl_pixel_rgb_t *original;
     rafgl_pixel_rgb_t sampled;
 
+    fw = spritesheet->frame_width;
+    fh = spritesheet->frame_height;
+
     fl = x;
-    fr = x + spritesheet->frame_width;
+    fr = x + fw;
     fu = y;
-    fd = y + spritesheet->frame_height;
+    fd = y + fh;
 
     flc = rafgl_max_m(fl, 0);
     frc = rafgl_min_m(fr, raster->width);
     fuc = rafgl_max_m(fu, 0);
     fdc = rafgl_min_m(fd, raster->height);
 
+    if(frc <= flc || fdc <= fuc) return;
+
+    float alpha;
+
     for(yi = fuc; yi < fdc; yi++)
     {
         for(xi = flc; xi < frc; xi++)
         {
-            sampled = pixel_at_m(spritesheet->sheet, sheet_x * spritesheet->frame_width + xi - fl, sheet_y * spritesheet->frame_height + yi - fu);
-            if(sampled.rgba != RAFGL_COLOUR_KEY.rgba)
-            {
+            sampled = pixel_at_m(spritesheet->sheet, sheet_x * fw + xi - fl, sheet_y * fh + yi - fu);
+            if (sampled.a == 255) {
                 pixel_at_pm(raster, xi, yi) = sampled;
+            }
+            else if (sampled.a != 0) { // blend
+                original = &pixel_at_pm(raster, xi, yi);
+                alpha = sampled.a/255.0f;
+                for (int i=0; i<3; i++) {
+                    original->components[i] = 
+                        original->components[i] * (1.0f - alpha)
+                        + sampled.components[i] * alpha;
+                }
             }
         }
     }
-
 }
 
 

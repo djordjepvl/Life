@@ -8,9 +8,11 @@ void player_init(player_t *p, float x, float y, uint32_t color) {
     p->dy = 0;
     p->h_border_damp = 1;
     p->v_border_damp = 1;
-
     player_set_size(p, PLAYER_START_SIZE);
+
+
     p->color.rgba = color;
+    
 }
 
 void player_update(player_t *p, float delta_time, rafgl_game_data_t *game_data) {
