@@ -10,6 +10,7 @@
 
 //Game headers
 #include <game_constants.h>
+#include <assets.h>
 #include <player.h>
 #include <fish.h>
 

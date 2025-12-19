@@ -3,7 +3,6 @@
 int game_width;
 int game_height;
 
-rafgl_spritesheet_t testsprite;
 
 rafgl_raster_t raster;
 rafgl_texture_t tex;
@@ -18,13 +17,13 @@ void main_state_init(GLFWwindow *window, void *args, int width, int height)
     game_height = height;
     rafgl_raster_init(&raster, game_width, game_height);
     rafgl_texture_init(&tex);
+    assets_init();
     
-    player_init(&player, game_width/2, game_height/2, PLAYER_COLOR);
+    player_init(&player, game_width/2, game_height/2, PLAYER_COLOR, &testFish);
     player.enabled = 1;
     fish_array_init();
     //fish_array_enable();
 
-    rafgl_spritesheet_init(&testsprite, "res/testAlphaFish.png", 1, 1);
 }
 
 

@@ -7,6 +7,7 @@ CC = gcc
 IN = main.c \
      src/main_state.c \
      src/game_constants.c \
+     src/assets.c \
      src/player.c \
      src/fish.c \
      src/glad/glad.c

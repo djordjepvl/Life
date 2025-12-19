@@ -1,6 +1,6 @@
 #include <main_state.h>
 
-void player_init(player_t *p, float x, float y, uint32_t color) {
+void player_init(player_t *p, float x, float y, uint32_t color, rafgl_spritesheet_t *main_sheet) {
     p->enabled = 0;
     p->x = x;
     p->y = y;
@@ -12,6 +12,7 @@ void player_init(player_t *p, float x, float y, uint32_t color) {
 
 
     p->color.rgba = color;
+    p->main_sheet = *main_sheet;
     
 }
 
@@ -21,7 +22,7 @@ void player_update(player_t *p, float delta_time, rafgl_game_data_t *game_data) 
 
 void player_render(player_t *p) {
     if (!p->enabled) return;
-    rafgl_raster_draw_spritesheet_rect(&raster, &testsprite, 0, 0, player.width+10, player.height+10, player.x, player.y);
+    rafgl_raster_draw_spritesheet_rect(&raster, &p->main_sheet, 0, 0, player.width+10, player.height+10, player.x, player.y);
 }
 
 
@@ -101,6 +102,6 @@ void player_set_size(player_t *p, float new_size) {
 }
 
 void player_respawn(player_t *p) {
-    player_init(p, 1.0f * game_width/2, 1.0f * game_height/2, p->color.rgba);
+    player_init(p, 1.0f * game_width/2, 1.0f * game_height/2, p->color.rgba, &p->main_sheet);
     p->enabled = 1;
 }
