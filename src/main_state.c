@@ -49,7 +49,6 @@ void main_state_update(GLFWwindow *window, float delta_time, rafgl_game_data_t *
     
     fish_array_render();
     player_render(&player);
-    rafgl_raster_draw_spritesheet(&raster, &testsprite, 0, 0, player.x, player.y);
 
 }
 

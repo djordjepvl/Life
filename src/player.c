@@ -21,9 +21,7 @@ void player_update(player_t *p, float delta_time, rafgl_game_data_t *game_data) 
 
 void player_render(player_t *p) {
     if (!p->enabled) return;
-    rafgl_raster_draw_rectangle(&raster, 
-        p->x - p->width/2, p->y - p->height/2,
-        p->width, p->height, p->color.rgba, 1);
+    rafgl_raster_draw_spritesheet_rect(&raster, &testsprite, 0, 0, player.width+10, player.height+10, player.x, player.y);
 }
 
 

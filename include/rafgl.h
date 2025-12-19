@@ -212,6 +212,9 @@ int rafgl_raster_cleanup(rafgl_raster_t *raster);
 
 void rafgl_spritesheet_init(rafgl_spritesheet_t *spritesheet, const char *sheet_path, int sheet_width, int sheet_height);
 void rafgl_raster_draw_spritesheet(rafgl_raster_t *raster, rafgl_spritesheet_t *spritesheet, int sheet_x, int sheet_y, int x, int y);
+void rafgl_raster_draw_spritesheet_rect(rafgl_raster_t *raster, rafgl_spritesheet_t *spritesheet, int frame_x, int frame_y, int rect_w,
+    int rect_h, int rect_x, int rect_y);
+void rafgl_raster_from_spritesheet_frame(rafgl_raster_t *frame_raster, rafgl_spritesheet_t *sheet, int sheet_x, int sheet_y);
 
 void rafgl_log(int level, const char *format, ...);
 
@@ -689,6 +692,36 @@ void rafgl_raster_draw_spritesheet(rafgl_raster_t *raster, rafgl_spritesheet_t *
     }
 }
 
+// draw sheet frame and fit into the given rectangle 
+void rafgl_raster_draw_spritesheet_rect(
+    rafgl_raster_t *raster,
+    rafgl_spritesheet_t *spritesheet,
+    int frame_x, int frame_y,
+    int rect_w, int rect_h,
+    int rect_x, int rect_y
+) {
+    rafgl_raster_t frame_raster, rect_raster;
+    rafgl_raster_from_spritesheet_frame(&frame_raster, spritesheet, frame_x, frame_y);
+    rafgl_raster_init(&rect_raster, rect_w, rect_h);
+    rafgl_raster_bilinear_upsample(&rect_raster, &frame_raster);
+    rafgl_raster_draw_raster(raster, &rect_raster, rect_x-rect_w/2, rect_y-rect_h/2);
+}
+
+void rafgl_raster_from_spritesheet_frame(rafgl_raster_t *to_raster, rafgl_spritesheet_t *sheet, int sheet_x, int sheet_y)
+{
+    int fw = sheet->frame_width;
+    int fh = sheet->frame_height;
+
+    rafgl_raster_init(to_raster, fw, fh);
+
+    for (int y = 0; y < fh; y++)
+    {
+        for (int x = 0; x < fw; x++)
+        {
+            to_raster->data[y * fw + x] = pixel_at_m(sheet->sheet, sheet_x * fw + x, sheet_y * fh + y);
+        }
+    }
+}
 
 int rafgl_raster_copy(rafgl_raster_t *raster_to, rafgl_raster_t *raster_from)
 {
@@ -788,7 +821,9 @@ int rafgl_raster_draw_raster(rafgl_raster_t *to, rafgl_raster_t *from, int x, in
     int flc, frc, fuc, fdc;
     int xi, yi;
 
+    rafgl_pixel_rgb_t *original;
     rafgl_pixel_rgb_t sampled;
+
 
     fl = x;
     fr = x + from->width;
@@ -800,14 +835,22 @@ int rafgl_raster_draw_raster(rafgl_raster_t *to, rafgl_raster_t *from, int x, in
     fuc = rafgl_max_m(fu, 0);
     fdc = rafgl_min_m(fd, to->height);
 
+    float alpha;
+
     for(yi = fuc; yi < fdc; yi++)
     {
         for(xi = flc; xi < frc; xi++)
         {
             sampled = pixel_at_pm(from, xi - fl, yi - fu);
-            if(sampled.rgba != RAFGL_COLOUR_KEY.rgba)
-            {
+            if (sampled.a == 255) {
                 pixel_at_pm(to, xi, yi) = sampled;
+            }
+            else if (sampled.a != 0) { // blend 
+                original = &pixel_at_pm(to, xi, yi); 
+                alpha = sampled.a/255.0f; 
+                for (int i=0; i<3; i++) { 
+                    original->components[i] = original->components[i] * (1.0f - alpha) + sampled.components[i] * alpha; 
+                }
             }
         }
     }
