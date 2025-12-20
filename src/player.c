@@ -104,8 +104,6 @@ void player_set_size(player_t *p, float new_size) {
     t = 1.0f - powf(0.5f, t * 19.0f);
     
     p->accel = PLAYER_ACCEL_START + t * (PLAYER_ACCEL_END - PLAYER_ACCEL_START);
-    p->damp  = PLAYER_DAMP_START  + t * (PLAYER_DAMP_END  - PLAYER_DAMP_START);
-    printf("%f\n", p->size);
 }
 
 void player_respawn(player_t *p) {
