@@ -4,7 +4,7 @@ int fish_array_enabled = 0;
 
 void fish_array_init() {
     for (int i=0; i<FISH_MAX_COUNT; i++) {
-        fish_init(&fish[i]);
+        fish_init(&fish[i], &testEnemyFish);
     }
 }
 
@@ -31,13 +31,14 @@ void fish_array_disable() {
     }
 }
 
-void fish_init(fish_t *f) {
+void fish_init(fish_t *f, asset_t *main_asset) {
     f->enabled = 0;
     f->x = -0;
     f->y = -0;
     f->dx = 0;
     f->dy = 0;
     f->speed = 0;
+    f->main_asset = *main_asset;
 }
 
 
@@ -65,9 +66,7 @@ void fish_update(fish_t *f, float delta_time, rafgl_game_data_t *game_data) {
 
 void fish_render(fish_t *f) {
     if (!f->enabled) return;
-    rafgl_raster_draw_rectangle(&raster, 
-        f->x - f->width/2, f->y - f->height/2,
-        f->width, f->height, f->color.rgba, 1);
+    raster_draw_scaled_asset(&raster, &f->main_asset, 0, 0, f->width+20.0f, f->height+10.0f, f->x, f->y, (f->dx > 0.0f) );
 }
 
 void fish_random_spawn(fish_t *f) {

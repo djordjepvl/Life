@@ -6,6 +6,8 @@ typedef struct {
 } asset_t;
 
 extern asset_t testFish;
+extern asset_t testEnemyFish;
+extern asset_t testBackground;
 
 void assets_init();
 void asset_init(asset_t *asset, const char *sheet_path, int sheet_width, int sheet_height);
@@ -14,6 +16,8 @@ void raster_draw_scaled_asset(
     rafgl_raster_t *raster, asset_t *asset, 
     int frame_x, int frame_y,
     int width, int height,
-    int x, int y);
+    int x, int y,
+    int horizontal_flip
+);
 
 void asset_resize_frame(asset_t *asset, rafgl_raster_t *frame, int frame_x, int frame_y, int new_width, int new_height);

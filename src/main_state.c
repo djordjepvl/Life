@@ -11,6 +11,8 @@ player_t player;
 fish_t fish[FISH_MAX_COUNT];
 
 
+float game_center_x, game_center_y;
+
 void main_state_init(GLFWwindow *window, void *args, int width, int height)
 {
     game_width = width;
@@ -24,6 +26,8 @@ void main_state_init(GLFWwindow *window, void *args, int width, int height)
     fish_array_init();
     fish_array_enable();
 
+    game_center_x = game_width/2.0f;
+    game_center_y = game_height/2.0f;
 }
 
 
@@ -43,8 +47,8 @@ void main_state_update(GLFWwindow *window, float delta_time, rafgl_game_data_t *
     //printMousePos(game_data);
 
     //FILLING RASTER
-    rafgl_raster_draw_rectangle(&raster,0,0,game_width,game_height,rafgl_RGB(44, 155, 219),1);
-    
+    //rafgl_raster_draw_rectangle(&raster,0,0,game_width,game_height,rafgl_RGB(44, 155, 219),1);
+    raster_draw_scaled_asset(&raster, &testBackground, 0, 0, game_width, game_height, game_center_x, game_center_y, 0);
     
     fish_array_render();
     player_render(&player);

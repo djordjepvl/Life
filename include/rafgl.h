@@ -301,7 +301,7 @@ int rafgl_button_check(rafgl_button_t *btn, rafgl_game_data_t *game_data);
 
 void rafgl_raster_box_blur(rafgl_raster_t *result, rafgl_raster_t *tmp, rafgl_raster_t *from, int radius);
 
-int rafgl_raster_draw_raster(rafgl_raster_t *to, rafgl_raster_t *from, int x, int y);
+int rafgl_raster_draw_raster(rafgl_raster_t *to, rafgl_raster_t *from, int x, int y, int horizontal_flip);
 
 void rafgl_raster_draw_line(rafgl_raster_t *raster, int x0, int y0, int x1, int y1, uint32_t colour);
 void rafgl_raster_draw_circle(rafgl_raster_t *raster, int cx, int cy, int r, uint32_t colour, int fill);
@@ -704,7 +704,7 @@ void rafgl_raster_draw_spritesheet_rect(
     rafgl_raster_from_spritesheet_frame(&frame_raster, spritesheet, frame_x, frame_y);
     rafgl_raster_init(&rect_raster, rect_w, rect_h);
     rafgl_raster_bilinear_upsample(&rect_raster, &frame_raster);
-    rafgl_raster_draw_raster(raster, &rect_raster, rect_x-rect_w/2, rect_y-rect_h/2);
+    rafgl_raster_draw_raster(raster, &rect_raster, rect_x-rect_w/2, rect_y-rect_h/2, 0);
 }
 
 void rafgl_raster_from_spritesheet_frame(rafgl_raster_t *to_raster, rafgl_spritesheet_t *sheet, int sheet_x, int sheet_y)
@@ -814,7 +814,7 @@ void rafgl_raster_box_blur(rafgl_raster_t *result, rafgl_raster_t *tmp, rafgl_ra
     }
 }
 
-int rafgl_raster_draw_raster(rafgl_raster_t *to, rafgl_raster_t *from, int x, int y)
+int rafgl_raster_draw_raster(rafgl_raster_t *to, rafgl_raster_t *from, int x, int y, int horizontal_flip)
 {
 
     int fl, fr, fu, fd;
@@ -839,17 +839,36 @@ int rafgl_raster_draw_raster(rafgl_raster_t *to, rafgl_raster_t *from, int x, in
 
     for(yi = fuc; yi < fdc; yi++)
     {
-        for(xi = flc; xi < frc; xi++)
-        {
-            sampled = pixel_at_pm(from, xi - fl, yi - fu);
-            if (sampled.a == 255) {
-                pixel_at_pm(to, xi, yi) = sampled;
+        if (horizontal_flip) {
+            for(xi = flc; xi < frc; xi++)
+            {
+                int src_x = horizontal_flip ? (from->width - 1 - (xi - fl)) : (xi - fl);
+                sampled = pixel_at_pm(from, src_x, yi - fu);
+                if (sampled.a == 255) {
+                    pixel_at_pm(to, xi, yi) = sampled;
+                }
+                else if (sampled.a != 0) { // blend 
+                    original = &pixel_at_pm(to, xi, yi); 
+                    alpha = sampled.a/255.0f; 
+                    for (int i=0; i<3; i++) { 
+                        original->components[i] = original->components[i] * (1.0f - alpha) + sampled.components[i] * alpha; 
+                    }
+                }
             }
-            else if (sampled.a != 0) { // blend 
-                original = &pixel_at_pm(to, xi, yi); 
-                alpha = sampled.a/255.0f; 
-                for (int i=0; i<3; i++) { 
-                    original->components[i] = original->components[i] * (1.0f - alpha) + sampled.components[i] * alpha; 
+        }
+        else {
+            for(xi = flc; xi < frc; xi++)
+            {
+                sampled = pixel_at_pm(from, xi - fl, yi - fu);
+                if (sampled.a == 255) {
+                    pixel_at_pm(to, xi, yi) = sampled;
+                }
+                else if (sampled.a != 0) { // blend 
+                    original = &pixel_at_pm(to, xi, yi); 
+                    alpha = sampled.a/255.0f; 
+                    for (int i=0; i<3; i++) { 
+                        original->components[i] = original->components[i] * (1.0f - alpha) + sampled.components[i] * alpha; 
+                    }
                 }
             }
         }

@@ -22,7 +22,7 @@ void player_update(player_t *p, float delta_time, rafgl_game_data_t *game_data) 
 
 void player_render(player_t *p) {
     if (!p->enabled) return;
-    raster_draw_scaled_asset(&raster, &p->main_asset, 0, 0, p->width, p->height, p->x, p->y);
+    raster_draw_scaled_asset(&raster, &p->main_asset, 0, 0, p->width+20.0f, p->height+10.0f, p->x, p->y, (p->dx > 0.0f) );
 }
 
 

@@ -10,6 +10,7 @@ typedef struct {
     int width, height;
 
     rafgl_pixel_rgb_t color;
+    asset_t main_asset;
 } fish_t;
 
 extern int fish_array_enabled;
@@ -22,7 +23,7 @@ void fish_array_render();
 void fish_array_enable();
 void fish_array_disable();
 
-void fish_init(fish_t *f);
+void fish_init(fish_t *f, asset_t *main_asset);
 void fish_update(fish_t *f, float delta_time, rafgl_game_data_t *game_data);
 void fish_render(fish_t *f);
 

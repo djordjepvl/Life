@@ -14,10 +14,10 @@ const float EAT_MULTIPLIER = 0.1f;
 
 const uint32_t PLAYER_COLOR = rafgl_RGB(245, 183, 39);
 
-const float PLAYER_ACCEL_START = 0.3f;
+const float PLAYER_ACCEL_START = 0.2f;
 const float PLAYER_ACCEL_END = 0.002f;
 
-const float PLAYER_DAMP_START = 0.99f;
+const float PLAYER_DAMP_START = 0.97f;
 const float PLAYER_DAMP_END  = 0.9993f;
 
 const float PLAYER_START_SIZE = 30.0f;
