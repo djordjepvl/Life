@@ -214,7 +214,7 @@ void rafgl_spritesheet_init(rafgl_spritesheet_t *spritesheet, const char *sheet_
 void rafgl_raster_draw_spritesheet(rafgl_raster_t *raster, rafgl_spritesheet_t *spritesheet, int sheet_x, int sheet_y, int x, int y);
 void rafgl_raster_draw_spritesheet_rect(rafgl_raster_t *raster, rafgl_spritesheet_t *spritesheet, int frame_x, int frame_y, int rect_w,
     int rect_h, int rect_x, int rect_y);
-void rafgl_raster_from_spritesheet_frame(rafgl_raster_t *frame_raster, rafgl_spritesheet_t *sheet, int sheet_x, int sheet_y);
+void rafgl_raster_from_spritesheet_frame(rafgl_raster_t *frame_raster, rafgl_spritesheet_t *sheet, int sheet_x, int sheet_y, int horizontal_flip);
 
 void rafgl_log(int level, const char *format, ...);
 
@@ -301,7 +301,7 @@ int rafgl_button_check(rafgl_button_t *btn, rafgl_game_data_t *game_data);
 
 void rafgl_raster_box_blur(rafgl_raster_t *result, rafgl_raster_t *tmp, rafgl_raster_t *from, int radius);
 
-int rafgl_raster_draw_raster(rafgl_raster_t *to, rafgl_raster_t *from, int x, int y, int horizontal_flip);
+int rafgl_raster_draw_raster(rafgl_raster_t *to, rafgl_raster_t *from, int x, int y);
 
 void rafgl_raster_draw_line(rafgl_raster_t *raster, int x0, int y0, int x1, int y1, uint32_t colour);
 void rafgl_raster_draw_circle(rafgl_raster_t *raster, int cx, int cy, int r, uint32_t colour, int fill);
@@ -669,8 +669,6 @@ void rafgl_raster_draw_spritesheet(rafgl_raster_t *raster, rafgl_spritesheet_t *
 
     if(frc <= flc || fdc <= fuc) return;
 
-    float alpha;
-
     for(yi = fuc; yi < fdc; yi++)
     {
         for(xi = flc; xi < frc; xi++)
@@ -681,11 +679,8 @@ void rafgl_raster_draw_spritesheet(rafgl_raster_t *raster, rafgl_spritesheet_t *
             }
             else if (sampled.a != 0) { // blend
                 original = &pixel_at_pm(raster, xi, yi);
-                alpha = sampled.a/255.0f;
                 for (int i=0; i<3; i++) {
-                    original->components[i] = 
-                        original->components[i] * (1.0f - alpha)
-                        + sampled.components[i] * alpha;
+                    original->components[i] = (original->components[i] * (255-sampled.a) + sampled.components[i] * sampled.a) >> 8;
                 }
             }
         }
@@ -701,24 +696,32 @@ void rafgl_raster_draw_spritesheet_rect(
     int rect_x, int rect_y
 ) {
     rafgl_raster_t frame_raster, rect_raster;
-    rafgl_raster_from_spritesheet_frame(&frame_raster, spritesheet, frame_x, frame_y);
+    rafgl_raster_from_spritesheet_frame(&frame_raster, spritesheet, frame_x, frame_y, 0);
     rafgl_raster_init(&rect_raster, rect_w, rect_h);
     rafgl_raster_bilinear_upsample(&rect_raster, &frame_raster);
-    rafgl_raster_draw_raster(raster, &rect_raster, rect_x-rect_w/2, rect_y-rect_h/2, 0);
+    rafgl_raster_draw_raster(raster, &rect_raster, rect_x-rect_w/2, rect_y-rect_h/2);
 }
 
-void rafgl_raster_from_spritesheet_frame(rafgl_raster_t *to_raster, rafgl_spritesheet_t *sheet, int sheet_x, int sheet_y)
+void rafgl_raster_from_spritesheet_frame(rafgl_raster_t *to_raster, rafgl_spritesheet_t *sheet, int sheet_x, int sheet_y, int horizontal_flip)
 {
     int fw = sheet->frame_width;
     int fh = sheet->frame_height;
 
     rafgl_raster_init(to_raster, fw, fh);
 
-    for (int y = 0; y < fh; y++)
-    {
-        for (int x = 0; x < fw; x++)
-        {
-            to_raster->data[y * fw + x] = pixel_at_m(sheet->sheet, sheet_x * fw + x, sheet_y * fh + y);
+    if (horizontal_flip) {
+        for(int y = 0; y < fh; y++) {
+            for(int x = 0; x < fw; x++) {
+                int src_x = fw - 1 - x;
+                to_raster->data[y * fw + x] = pixel_at_m(sheet->sheet, sheet_x * fw + src_x, sheet_y * fh + y);
+            }
+    }
+    }
+    else {
+        for(int y = 0; y < fh; y++) {
+            rafgl_pixel_rgb_t *src_row = &sheet->sheet.data[(sheet_y * fh + y) * sheet->sheet.width + (sheet_x * fw)];
+            rafgl_pixel_rgb_t *dst_row = &to_raster->data[y * fw];
+            memcpy(dst_row, src_row, fw * sizeof(rafgl_pixel_rgb_t));
         }
     }
 }
@@ -814,7 +817,7 @@ void rafgl_raster_box_blur(rafgl_raster_t *result, rafgl_raster_t *tmp, rafgl_ra
     }
 }
 
-int rafgl_raster_draw_raster(rafgl_raster_t *to, rafgl_raster_t *from, int x, int y, int horizontal_flip)
+int rafgl_raster_draw_raster(rafgl_raster_t *to, rafgl_raster_t *from, int x, int y)
 {
 
     int fl, fr, fu, fd;
@@ -839,38 +842,20 @@ int rafgl_raster_draw_raster(rafgl_raster_t *to, rafgl_raster_t *from, int x, in
 
     for(yi = fuc; yi < fdc; yi++)
     {
-        if (horizontal_flip) {
-            for(xi = flc; xi < frc; xi++)
-            {
-                int src_x = horizontal_flip ? (from->width - 1 - (xi - fl)) : (xi - fl);
-                sampled = pixel_at_pm(from, src_x, yi - fu);
-                if (sampled.a == 255) {
-                    pixel_at_pm(to, xi, yi) = sampled;
-                }
-                else if (sampled.a != 0) { // blend 
-                    original = &pixel_at_pm(to, xi, yi); 
-                    alpha = sampled.a/255.0f; 
-                    for (int i=0; i<3; i++) { 
-                        original->components[i] = original->components[i] * (1.0f - alpha) + sampled.components[i] * alpha; 
-                    }
+        for(xi = flc; xi < frc; xi++)
+        {
+            sampled = pixel_at_pm(from, xi - fl, yi - fu);
+            if (sampled.a == 255) {
+                pixel_at_pm(to, xi, yi) = sampled;
+            }
+            else if (sampled.a != 0) { // blend 
+                original = &pixel_at_pm(to, xi, yi); 
+                alpha = sampled.a/255.0f; 
+                for (int i=0; i<3; i++) { 
+                    original->components[i] = original->components[i] * (1.0f - alpha) + sampled.components[i] * alpha; 
                 }
             }
-        }
-        else {
-            for(xi = flc; xi < frc; xi++)
-            {
-                sampled = pixel_at_pm(from, xi - fl, yi - fu);
-                if (sampled.a == 255) {
-                    pixel_at_pm(to, xi, yi) = sampled;
-                }
-                else if (sampled.a != 0) { // blend 
-                    original = &pixel_at_pm(to, xi, yi); 
-                    alpha = sampled.a/255.0f; 
-                    for (int i=0; i<3; i++) { 
-                        original->components[i] = original->components[i] * (1.0f - alpha) + sampled.components[i] * alpha; 
-                    }
-                }
-            }
+        
         }
     }
 
@@ -1387,20 +1372,24 @@ void rafgl_texture_load_from_raster(rafgl_texture_t *texture, rafgl_raster_t *ra
     GLuint tex_slot = texture->tex_id;
     glBindTexture(GL_TEXTURE_2D, tex_slot);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    if (texture->width != raster->width || texture->height != raster->height) {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, raster->width, raster->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, raster->data);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, raster->width, raster->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, raster->data);
 
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        texture->width = raster->width;
+        texture->height = raster->height;
+        texture->channels = 4;
+        texture->tex_type = GL_TEXTURE_2D;
+    }
+
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, raster->width, raster->height, GL_RGBA, GL_UNSIGNED_BYTE, raster->data);
     glBindTexture(GL_TEXTURE_2D, 0);
-
-    texture->tex_id = tex_slot;
-    texture->width = raster->width;
-    texture->height = raster->height;
-    texture->channels = 3;
-    texture->tex_type = GL_TEXTURE_2D;
 }
 
 
