@@ -293,6 +293,7 @@ rafgl_pixel_rgb_t rafgl_point_sample(rafgl_raster_t *src, float u, float v);
 /* bi-linearly samples a pixel in the source raster on the normalised coordinates (u, v) u and v should be in range [0, 1] */
 rafgl_pixel_rgb_t rafgl_bilinear_sample(rafgl_raster_t *src, float u, float v);
 rafgl_pixel_rgb_t rafgl_fast_bilinear_sample(rafgl_raster_t *src, int u, int v);
+rafgl_pixel_rgb_t rafgl_box_sample(rafgl_raster_t *src, int u, int v);
 
 /* creates a button */
 void rafgl_button_innit(rafgl_button_t *btn, int posx, int posy, int width, int height, uint32_t colour);
@@ -310,6 +311,7 @@ void rafgl_raster_draw_circle(rafgl_raster_t *raster, int cx, int cy, int r, uin
 void rafgl_raster_draw_rectangle(rafgl_raster_t *raster, int x0, int y0, int w, int h, uint32_t colour, int fill);
 
 void rafgl_raster_bilinear_upsample(rafgl_raster_t *to, rafgl_raster_t *from);
+void rafgl_raster_box_upsample(rafgl_raster_t *to, rafgl_raster_t *from);
 
 int rafgl_raster_draw_string(rafgl_raster_t *raster, const char *s, int x, int y, uint32_t colour, int font_size);
 
@@ -1049,7 +1051,25 @@ void rafgl_raster_bilinear_upsample(rafgl_raster_t *to, rafgl_raster_t *from)
         yn +=y_incr;
     }
 }
+void rafgl_raster_box_upsample(rafgl_raster_t *to, rafgl_raster_t *from)
+{
+    int x, y;
+    int w = to->width, h = to->height;
+    int yn = 0;
+    int x_incr = (from->width << 16) / w;
+    int y_incr = (from->height << 16) / h;
 
+    for(y = 0; y < h; y++)
+    {
+        int xn = 0;
+        for(x = 0; x < w; x++)
+        {
+            pixel_at_pm(to, x, y) = rafgl_box_sample(from, xn, yn);
+            xn += x_incr;
+        }
+        yn +=y_incr;
+    }
+}
 
 void rafgl_game_add_game_state(rafgl_game_t *game, void (*init)(GLFWwindow *window, void *args, int width, int height),void (*update)(GLFWwindow *window, float delta_time, rafgl_game_data_t *game_data, void *args), void (*render)(GLFWwindow *window, void *args),void (*cleanup)(GLFWwindow *window, void *args))
 {
@@ -1392,7 +1412,34 @@ rafgl_pixel_rgb_t rafgl_fast_bilinear_sample(rafgl_raster_t *src, int u, int v)
     return rafgl_fast_lerppix(UM, LM, yscale);
 }
 
+rafgl_pixel_rgb_t rafgl_box_sample(rafgl_raster_t *src, int u, int v)
+{
+    rafgl_pixel_rgb_t UL, UR, LL, LR, UM, LM;
 
+    int width = src->width, height = src->height;
+
+    int x0, y0, x1, y1;
+
+    x0 = u >> 16;
+    y0 = v >> 16;
+    x1 = x0 + 1;
+    y1 = y0 + 1;
+
+    if(x1 > width - 1) x1 = width - 1;
+    if(y1 > height - 1) y1 = height - 1;
+
+    UL = pixel_at_pm(src, x0, y0);
+    UR = pixel_at_pm(src, x1, y0);
+    LL = pixel_at_pm(src, x0, y1);
+    LR = pixel_at_pm(src, x1, y1);
+
+    UL.r = (UL.r + UR.r + LL.r + LR.r) >> 2;
+    UL.g = (UL.g + UR.g + LL.g + LR.g) >> 2;
+    UL.b = (UL.b + UR.b + LL.b + LR.b) >> 2;
+    UL.a = (UL.a + UR.a + LL.a + LR.a) >> 2;
+
+    return UL;
+}
 
 
 void rafgl_texture_init(rafgl_texture_t *tex)

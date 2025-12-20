@@ -47,7 +47,7 @@ void main_state_update(GLFWwindow *window, float delta_time, rafgl_game_data_t *
     //printMousePos(game_data);
 
     //FILLING RASTER
-    raster_draw_scaled_asset(&raster, &testBackground, 0, 0, game_width, game_height, game_center_x, game_center_y, 0);
+    raster_draw_scaled_asset(&raster, &testBackground, 0, 0, game_width, game_height, game_center_x, game_center_y, 0, 1);
     
     fish_array_render();
     player_render(&player);

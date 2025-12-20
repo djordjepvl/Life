@@ -23,16 +23,17 @@ void raster_draw_scaled_asset(
     int frame_x, int frame_y,
     int width, int height,
     int x, int y,
-    int horizontal_flip
+    int horizontal_flip,
+    int cheap
 ) {
     int index = frame_x + frame_y*asset->sprites.frame_width;
     rafgl_raster_t *toDraw = &asset->scaled_frames[index];
     if (toDraw->width != width || toDraw->height != height || horizontal_flip != asset->frame_flipped[index])
-        asset_cache_frame(asset, index, frame_x, frame_y, width, height, horizontal_flip);
+        asset_cache_frame(asset, index, frame_x, frame_y, width, height, horizontal_flip, cheap);
     rafgl_raster_draw_raster(raster, toDraw, x-width/2, y-height/2);
 }
 
-void asset_cache_frame(asset_t *asset, int index, int frame_x, int frame_y, int new_width, int new_height, int horizontal_flip) {
+void asset_cache_frame(asset_t *asset, int index, int frame_x, int frame_y, int new_width, int new_height, int horizontal_flip, int cheap) {
     rafgl_raster_t *frame = &asset->scaled_frames[index];
     if (frame->width == new_width && frame->height == new_height && horizontal_flip == asset->frame_flipped[index]) return;
     rafgl_raster_t raw;
@@ -40,7 +41,8 @@ void asset_cache_frame(asset_t *asset, int index, int frame_x, int frame_y, int 
     
     rafgl_raster_cleanup(frame);
     rafgl_raster_init(frame, new_width, new_height);
-    rafgl_raster_bilinear_upsample(frame, &raw);
+    if (cheap) rafgl_raster_box_upsample(frame, &raw);
+    else rafgl_raster_bilinear_upsample(frame, &raw);
 
     rafgl_raster_cleanup(&raw);
 

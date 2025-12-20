@@ -19,7 +19,8 @@ void raster_draw_scaled_asset(
     int frame_x, int frame_y,
     int width, int height,
     int x, int y,
-    int horizontal_flip
+    int horizontal_flip,
+    int cheap
 );
 
-void asset_cache_frame(asset_t *asset, int index, int frame_x, int frame_y, int new_width, int new_height, int horizontal_flip);
+void asset_cache_frame(asset_t *asset, int index, int frame_x, int frame_y, int new_width, int new_height, int horizontal_flip, int cheap);

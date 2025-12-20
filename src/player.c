@@ -23,7 +23,10 @@ void player_update(player_t *p, float delta_time, rafgl_game_data_t *game_data) 
 
 void player_render(player_t *p) {
     if (!p->enabled) return;
-    raster_draw_scaled_asset(&raster, &p->main_asset, 0, 0, p->width+20.0f, p->height+10.0f, p->x, p->y, p->horizontal_flip);
+    if (p->width > 1000)
+        raster_draw_scaled_asset(&raster, &p->main_asset, 0, 0, p->width+20.0f, p->height+10.0f, p->x, p->y, p->horizontal_flip, 0);
+    else
+        raster_draw_scaled_asset(&raster, &p->main_asset, 0, 0, p->width+20.0f, p->height+10.0f, p->x, p->y, p->horizontal_flip, 1);
 }
 
 
@@ -31,8 +34,8 @@ void player_render(player_t *p) {
 void player_update_pos(player_t *p, float delta_time, rafgl_game_data_t *game_data) {
     if (!p->enabled) return;
 
-    if (game_data->keys_down[GLFW_KEY_W]) player_set_size(p, p->size+0.8f);
-    if (game_data->keys_down[GLFW_KEY_S]) player_set_size(p, p->size-0.8f);
+    if (game_data->keys_down[GLFW_KEY_W]) player_set_size(p, p->size+2.0f);
+    if (game_data->keys_down[GLFW_KEY_S]) player_set_size(p, p->size-2.0f);
     
 
     const float BASE_FPS = 240.0f;
@@ -102,6 +105,7 @@ void player_set_size(player_t *p, float new_size) {
     
     p->accel = PLAYER_ACCEL_START + t * (PLAYER_ACCEL_END - PLAYER_ACCEL_START);
     p->damp  = PLAYER_DAMP_START  + t * (PLAYER_DAMP_END  - PLAYER_DAMP_START);
+    printf("%f\n", p->size);
 }
 
 void player_respawn(player_t *p) {
