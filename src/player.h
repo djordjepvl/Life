@@ -11,10 +11,10 @@ typedef struct {
     float h_border_damp, v_border_damp;
     
     rafgl_pixel_rgb_t color;
-    rafgl_spritesheet_t main_sheet;
+    asset_t main_asset;
 } player_t;
 
-void player_init(player_t *p, float x, float y, uint32_t color, rafgl_spritesheet_t *main_sheet);
+void player_init(player_t *p, float x, float y, uint32_t color, asset_t *main_sheet);
 void player_update(player_t *p, float delta_time, rafgl_game_data_t *game_data);
 void player_render(player_t *p);
 

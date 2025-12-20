@@ -1,5 +1,19 @@
 #pragma once
 
-extern rafgl_spritesheet_t testFish;
+typedef struct {
+    rafgl_spritesheet_t sprites;
+    rafgl_raster_t *scaled_frames;
+} asset_t;
+
+extern asset_t testFish;
 
 void assets_init();
+void asset_init(asset_t *asset, const char *sheet_path, int sheet_width, int sheet_height);
+// draw asset scaled into the provided dimensions and center coordinates
+void raster_draw_scaled_asset(
+    rafgl_raster_t *raster, asset_t *asset, 
+    int frame_x, int frame_y,
+    int width, int height,
+    int x, int y);
+
+void asset_resize_frame(asset_t *asset, rafgl_raster_t *frame, int frame_x, int frame_y, int new_width, int new_height);
