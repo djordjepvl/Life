@@ -24,7 +24,7 @@ void main_state_init(GLFWwindow *window, void *args, int width, int height)
     player_init(&player, game_width/2, game_height/2, PLAYER_COLOR, &testFish);
     player.enabled = 1;
     fish_array_init();
-    fish_array_enable();
+    //fish_array_enable();
 
     game_center_x = game_width/2.0f;
     game_center_y = game_height/2.0f;

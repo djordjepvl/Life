@@ -3,6 +3,8 @@
 typedef struct {
     rafgl_spritesheet_t sprites;
     rafgl_raster_t *scaled_frames;
+    int *frame_flipped;
+    const char *path;
 } asset_t;
 
 extern asset_t testFish;
@@ -20,4 +22,4 @@ void raster_draw_scaled_asset(
     int horizontal_flip
 );
 
-void asset_resize_frame(asset_t *asset, rafgl_raster_t *frame, int frame_x, int frame_y, int new_width, int new_height);
+void asset_cache_frame(asset_t *asset, int index, int frame_x, int frame_y, int new_width, int new_height, int horizontal_flip);

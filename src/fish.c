@@ -38,7 +38,7 @@ void fish_init(fish_t *f, asset_t *main_asset) {
     f->dx = 0;
     f->dy = 0;
     f->speed = 0;
-    f->main_asset = *main_asset;
+    asset_init(&f->main_asset, main_asset->path, main_asset->sprites.sheet_width, main_asset->sprites.sheet_height);
 }
 
 

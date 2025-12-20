@@ -14,6 +14,8 @@ void asset_init(asset_t *asset, const char *sheet_path, int sheet_width, int she
     rafgl_spritesheet_init(&asset->sprites, sheet_path, sheet_width, sheet_height);
     asset->scaled_frames = malloc(sizeof(rafgl_raster_t) * sheet_width * sheet_height);
     for (int i=0; i<sheet_width*sheet_height; i++) rafgl_raster_init(&asset->scaled_frames[i], 0,0);
+    asset->frame_flipped = calloc(sheet_width * sheet_height, sizeof(int));
+    asset->path = sheet_path;
 }
 
 void raster_draw_scaled_asset(
@@ -25,19 +27,23 @@ void raster_draw_scaled_asset(
 ) {
     int index = frame_x + frame_y*asset->sprites.frame_width;
     rafgl_raster_t *toDraw = &asset->scaled_frames[index];
-    if (toDraw->width != width || toDraw->height != height) asset_resize_frame(asset, toDraw, frame_x, frame_y, width, height);
-    rafgl_raster_draw_raster(raster, toDraw, x-width/2, y-height/2, horizontal_flip);
+    if (toDraw->width != width || toDraw->height != height || horizontal_flip != asset->frame_flipped[index])
+        asset_cache_frame(asset, index, frame_x, frame_y, width, height, horizontal_flip);
+    rafgl_raster_draw_raster(raster, toDraw, x-width/2, y-height/2);
 }
 
-void asset_resize_frame(asset_t *asset, rafgl_raster_t *frame, int frame_x, int frame_y, int new_width, int new_height) {
-    if (frame->width == new_width && frame->height == new_height) return;
+void asset_cache_frame(asset_t *asset, int index, int frame_x, int frame_y, int new_width, int new_height, int horizontal_flip) {
+    rafgl_raster_t *frame = &asset->scaled_frames[index];
+    if (frame->width == new_width && frame->height == new_height && horizontal_flip == asset->frame_flipped[index]) return;
     rafgl_raster_t raw;
-    rafgl_raster_from_spritesheet_frame(&raw, &asset->sprites, frame_x, frame_y);
+    rafgl_raster_from_spritesheet_frame(&raw, &asset->sprites, frame_x, frame_y, horizontal_flip);
     
     rafgl_raster_cleanup(frame);
     rafgl_raster_init(frame, new_width, new_height);
     rafgl_raster_bilinear_upsample(frame, &raw);
 
     rafgl_raster_cleanup(&raw);
+
+    asset->frame_flipped[index] = horizontal_flip;
 }
 
