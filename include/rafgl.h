@@ -284,6 +284,7 @@ float rafgl_lerpf(float from, float to, float scale);
 int rafgl_lerpi(int from, int to, float scale);
 /* linearly interpolate between pixel arguments from and to with the argument scale ( from + (to - from) * scale). Pixels are treated as 4 component vectors in regards to interpolation */
 rafgl_pixel_rgb_t rafgl_lerppix(rafgl_pixel_rgb_t from, rafgl_pixel_rgb_t to, float scale);
+rafgl_pixel_rgb_t rafgl_fast_lerppix(rafgl_pixel_rgb_t from, rafgl_pixel_rgb_t to, int scale);
 /* calculates the weighted average of the pixel colour components  */
 int rafgl_calculate_pixel_brightness(rafgl_pixel_rgb_t pix);
 
@@ -291,6 +292,7 @@ int rafgl_calculate_pixel_brightness(rafgl_pixel_rgb_t pix);
 rafgl_pixel_rgb_t rafgl_point_sample(rafgl_raster_t *src, float u, float v);
 /* bi-linearly samples a pixel in the source raster on the normalised coordinates (u, v) u and v should be in range [0, 1] */
 rafgl_pixel_rgb_t rafgl_bilinear_sample(rafgl_raster_t *src, float u, float v);
+rafgl_pixel_rgb_t rafgl_fast_bilinear_sample(rafgl_raster_t *src, int u, int v);
 
 /* creates a button */
 void rafgl_button_innit(rafgl_button_t *btn, int posx, int posy, int width, int height, uint32_t colour);
@@ -1032,16 +1034,19 @@ void rafgl_raster_bilinear_upsample(rafgl_raster_t *to, rafgl_raster_t *from)
 {
     int x, y;
     int w = to->width, h = to->height;
-    float xn, yn;
+    int yn = 0;
+    int x_incr = (from->width << 16) / w;
+    int y_incr = (from->height << 16) / h;
 
     for(y = 0; y < h; y++)
     {
-        yn = ((float)y) / h;
+        int xn = 0;
         for(x = 0; x < w; x++)
         {
-            xn = ((float)x) / w;
-            pixel_at_pm(to, x, y) = rafgl_bilinear_sample(from, xn, yn);
+            pixel_at_pm(to, x, y) = rafgl_fast_bilinear_sample(from, xn, yn);
+            xn += x_incr;
         }
+        yn +=y_incr;
     }
 }
 
@@ -1306,6 +1311,15 @@ inline rafgl_pixel_rgb_t rafgl_lerppix(rafgl_pixel_rgb_t from, rafgl_pixel_rgb_t
     from.a = rafgl_lerpi(from.a, to.a, scale);
     return from;
 }
+//use 16.16 int for scale for performance
+inline rafgl_pixel_rgb_t rafgl_fast_lerppix(rafgl_pixel_rgb_t from, rafgl_pixel_rgb_t to, int scale)
+{
+    from.r = (from.r * (65536 - scale) + to.r * scale) >> 16;
+    from.g = (from.g * (65536 - scale) + to.g * scale) >> 16;
+    from.b = (from.b * (65536 - scale) + to.b * scale) >> 16;
+    from.a = (from.a * (65536 - scale) + to.a * scale) >> 16;
+    return from;
+}
 
 rafgl_pixel_rgb_t rafgl_point_sample(rafgl_raster_t *src, float u, float v)
 {
@@ -1346,6 +1360,38 @@ rafgl_pixel_rgb_t rafgl_bilinear_sample(rafgl_raster_t *src, float u, float v)
 
     return rafgl_lerppix(UM, LM, yscale);
 }
+
+//use 16.16 int instead of float for u and v for performance
+rafgl_pixel_rgb_t rafgl_fast_bilinear_sample(rafgl_raster_t *src, int u, int v)
+{
+    rafgl_pixel_rgb_t UL, UR, LL, LR, UM, LM;
+
+    int width = src->width, height = src->height;
+
+    int x0, y0, x1, y1;
+
+    x0 = u >> 16;
+    y0 = v >> 16;
+    x1 = x0 + 1;
+    y1 = y0 + 1;
+
+    if(x1 > width - 1) x1 = width - 1;
+    if(y1 > height - 1) y1 = height - 1;
+
+
+    int xscale = u & 0xFFFF, yscale = v & 0xFFFF;
+
+    UL = pixel_at_pm(src, x0, y0);
+    UR = pixel_at_pm(src, x1, y0);
+    LL = pixel_at_pm(src, x0, y1);
+    LR = pixel_at_pm(src, x1, y1);
+
+    UM = rafgl_fast_lerppix(UL, UR, xscale);
+    LM = rafgl_fast_lerppix(LL, LR, xscale);
+
+    return rafgl_fast_lerppix(UM, LM, yscale);
+}
+
 
 
 
