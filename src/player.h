@@ -12,6 +12,7 @@ typedef struct {
     
     rafgl_pixel_rgb_t color;
     asset_t main_asset;
+    int horizontal_flip;
 } player_t;
 
 void player_init(player_t *p, float x, float y, uint32_t color, asset_t *main_sheet);

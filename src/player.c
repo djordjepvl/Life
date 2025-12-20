@@ -13,6 +13,7 @@ void player_init(player_t *p, float x, float y, uint32_t color, asset_t *main_as
 
     p->color.rgba = color;
     p->main_asset = *main_asset;
+    p->horizontal_flip = 0;
     
 }
 
@@ -22,7 +23,7 @@ void player_update(player_t *p, float delta_time, rafgl_game_data_t *game_data) 
 
 void player_render(player_t *p) {
     if (!p->enabled) return;
-    raster_draw_scaled_asset(&raster, &p->main_asset, 0, 0, p->width+20.0f, p->height+10.0f, p->x, p->y, (p->dx > 0.0f) );
+    raster_draw_scaled_asset(&raster, &p->main_asset, 0, 0, p->width+20.0f, p->height+10.0f, p->x, p->y, p->horizontal_flip);
 }
 
 
@@ -56,9 +57,11 @@ void player_update_pos(player_t *p, float delta_time, rafgl_game_data_t *game_da
     }
     if (game_data->keys_down[RAFGL_KEY_LEFT]) {
         ix-= 1.0;
+        p->horizontal_flip = 0;
     }
     if (game_data->keys_down[RAFGL_KEY_RIGHT]) {
         ix+= 1.0;
+        p->horizontal_flip = 1;
     }
 
     if (ix != 0.0f || iy != 0.0f) {
