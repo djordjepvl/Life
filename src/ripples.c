@@ -141,7 +141,7 @@ void ripple_bump_map_reset() {
 }
 
 void box_blur_h(pair_t *src, pair_t *dst, int w, int h) {
-    int radius = 4;
+    int radius = 2;
     for (int y = 0; y < h; y++) {
         for (int x = 0; x < w; x++) {
             int sum_x = 0, sum_y = 0, count = 0;
@@ -159,7 +159,7 @@ void box_blur_h(pair_t *src, pair_t *dst, int w, int h) {
     }
 }
 void box_blur_v(pair_t *src, pair_t *dst, int w, int h) {
-    int radius = 4;
+    int radius = 2;
     for (int x = 0; x < w; x++) {
         for (int y = 0; y < h; y++) {
             int sum_x = 0, sum_y = 0, count = 0;
@@ -178,8 +178,8 @@ void box_blur_v(pair_t *src, pair_t *dst, int w, int h) {
 }
 
 void ripple_bump_map_apply() {
-    //box_blur_h(ripple_bump_map, temp_blur_map, bmap_width, bmap_height);
-    //box_blur_v(temp_blur_map, ripple_bump_map, bmap_width, bmap_height);
+    box_blur_h(ripple_bump_map, temp_blur_map, bmap_width, bmap_height);
+    box_blur_v(temp_blur_map, ripple_bump_map, bmap_width, bmap_height);
 
     rafgl_raster_copy(&ripple_temp_raster, &raster);
     for (int y=0; y<game_height; y++) {
