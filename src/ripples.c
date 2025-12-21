@@ -7,6 +7,7 @@ int gaus_map[RIPPLE_MAX_STRENGTH+1][RIPPLE_MAX_STRENGTH/2];
 
 int bmap_width, bmap_height;
 pair_t *ripple_bump_map;
+pair_t *temp_blur_map;
 pair_t *ripple_full_bump_map;
 
 
@@ -76,7 +77,7 @@ void ripple_update(ripple_t *r, float delta_time) {
     if (!gaus_map[RIPPLE_MAX_STRENGTH][thickness]) {
         for (int x = range - thickness * 2; x <= range; x++) {
             float t = (float)(x - (range - thickness));
-            gaus_map[x][thickness] = powf(1.4f, -t * t / (float)thickness) * (1 << 16);
+            gaus_map[x][thickness] = powf(1.1f, -t * t / (float)thickness) * (1 << 16);
         }
         gaus_map[RIPPLE_MAX_STRENGTH][thickness] = 1;
     }
@@ -126,6 +127,9 @@ void ripple_bump_map_init() {
     bmap_height = game_height/2;
     ripple_bump_map = malloc(sizeof(pair_t)*bmap_width*bmap_height);
     ripple_bump_map_reset();
+
+    temp_blur_map = malloc(sizeof(pair_t)*bmap_width*bmap_height);
+    memset(temp_blur_map, 0, sizeof(pair_t) * bmap_width * bmap_height);
     
     ripple_full_bump_map = malloc(sizeof(pair_t)*game_width*game_height);
     memset(ripple_full_bump_map, 0, sizeof(pair_t) * game_width * game_height);
@@ -133,7 +137,48 @@ void ripple_bump_map_init() {
 void ripple_bump_map_reset() {
     memset(ripple_bump_map, 0, sizeof(pair_t) * bmap_width * bmap_height);
 }
+
+void box_blur_h(pair_t *src, pair_t *dst, int w, int h) {
+    int radius = 2;
+    for (int y = 0; y < h; y++) {
+        for (int x = 0; x < w; x++) {
+            int sum_x = 0, sum_y = 0, count = 0;
+            for (int dx = -radius; dx <= radius; dx++) {
+                int nx = x + dx;
+                if (nx >= 0 && nx < w) {
+                    sum_x += src[y * w + nx].x;
+                    sum_y += src[y * w + nx].y;
+                    count++;
+                }
+            }
+            dst[y * w + x].x = sum_x / count;
+            dst[y * w + x].y = sum_y / count;
+        }
+    }
+}
+void box_blur_v(pair_t *src, pair_t *dst, int w, int h) {
+    int radius = 2;
+    for (int x = 0; x < w; x++) {
+        for (int y = 0; y < h; y++) {
+            int sum_x = 0, sum_y = 0, count = 0;
+            for (int dy = -radius; dy <= radius; dy++) {
+                int ny = y + dy;
+                if (ny >= 0 && ny < h) {
+                    sum_x += src[ny * w + x].x;
+                    sum_y += src[ny * w + x].y;
+                    count++;
+                }
+            }
+            dst[y * w + x].x = sum_x / count;
+            dst[y * w + x].y = sum_y / count;
+        }
+    }
+}
+
 void ripple_bump_map_apply() {
+    box_blur_h(ripple_bump_map, temp_blur_map, bmap_width, bmap_height);
+    box_blur_v(temp_blur_map, ripple_bump_map, bmap_width, bmap_height);
+
     for (int y=0; y<bmap_height; y++) {
         for(int x=0; x<bmap_width; x++) {
             ripple_full_bump_map[x*2 + y*2*game_width] = ripple_bump_map[x + y*bmap_width];
@@ -142,4 +187,6 @@ void ripple_bump_map_apply() {
             ripple_full_bump_map[x*2+1 + (y*2+1)*game_width] = ripple_bump_map[x + y*bmap_width];
         }
     }
+
+
 }
