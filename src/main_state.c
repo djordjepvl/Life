@@ -62,12 +62,12 @@ void main_state_update(GLFWwindow *window, float delta_time, rafgl_game_data_t *
     fish_array_render();
     player_render(&player);
     ripple_bump_map_apply();
-    for (int y = 0; y < game_height/2; y++) {
-    for (int x = 0; x < game_width/2; x++) {
-        int indx = x + y * (game_width/2);
+    for (int y = 0; y < game_height; y++) {
+    for (int x = 0; x < game_width; x++) {
+        int indx = x + y * game_width;
 
-        int bx = ripple_bump_map[indx].x;
-        int by = ripple_bump_map[indx].y;
+        int bx = ripple_full_bump_map[indx].x;
+        int by = ripple_full_bump_map[indx].y;
 
         /* map [-R..R] -> [0..255] */
         int rx = (bx * 128) / 64 + 128;

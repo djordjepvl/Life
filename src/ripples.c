@@ -7,6 +7,7 @@ int gaus_map[RIPPLE_MAX_STRENGTH+1][RIPPLE_MAX_STRENGTH/2];
 
 int bmap_width, bmap_height;
 pair_t *ripple_bump_map;
+pair_t *ripple_full_bump_map;
 
 
 void ripple_array_init() {
@@ -125,10 +126,20 @@ void ripple_bump_map_init() {
     bmap_height = game_height/2;
     ripple_bump_map = malloc(sizeof(pair_t)*bmap_width*bmap_height);
     ripple_bump_map_reset();
+    
+    ripple_full_bump_map = malloc(sizeof(pair_t)*game_width*game_height);
+    memset(ripple_full_bump_map, 0, sizeof(pair_t) * game_width * game_height);
 }
 void ripple_bump_map_reset() {
     memset(ripple_bump_map, 0, sizeof(pair_t) * bmap_width * bmap_height);
 }
 void ripple_bump_map_apply() {
-
+    for (int y=0; y<bmap_height; y++) {
+        for(int x=0; x<bmap_width; x++) {
+            ripple_full_bump_map[x*2 + y*2*game_width] = ripple_bump_map[x + y*bmap_width];
+            ripple_full_bump_map[x*2 + (y*2+1)*game_width] = ripple_bump_map[x + y*bmap_width];
+            ripple_full_bump_map[x*2+1 + y*2*game_width] = ripple_bump_map[x + y*bmap_width];
+            ripple_full_bump_map[x*2+1 + (y*2+1)*game_width] = ripple_bump_map[x + y*bmap_width];
+        }
+    }
 }

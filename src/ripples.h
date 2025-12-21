@@ -2,7 +2,7 @@
 
 
 #define RIPPLE_MAX_STRENGTH 1024
-#define RIPPLE_MAX_LIFE 4.0f
+#define RIPPLE_MAX_LIFE 2.0f
 #define RIPPLE_BASE_SPEED 700
 #define RIPPLE_DAMP 0.98f
 typedef struct {
@@ -33,6 +33,7 @@ typedef struct {
 } pair_t;
 
 extern pair_t *ripple_bump_map;
+extern pair_t *ripple_full_bump_map;
 
 void ripple_bump_map_init();
 void ripple_bump_map_reset();
