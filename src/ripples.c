@@ -14,10 +14,10 @@ void ripple_array_update(float delta_time) {
         }
     }
 }
-void ripple_spawn_any(int x, int y, int size, float lifetime) {
+void ripple_spawn_any(int x, int y, int strength, float lifetime) {
     for (int i=0; i<RIPPLE_COUNT; i++) {
         if (!ripples[i].enabled) {
-            ripple_spawn(&ripples[i], x, y, size, lifetime);
+            ripple_spawn(&ripples[i], x, y, strength, lifetime);
             return;
         }
     }
@@ -30,33 +30,37 @@ void ripple_init(ripple_t *r) {
     r->age = 0;
     r->lifetime = 0;
     r->range = 0;
-    r->max_range = 0;
     r->amplitude = 0;
     r->speed = 0;
-    for (int i=0; i<RIPPLE_MAX_LEN; i++) r->gaus_map[i] = 0;
+    for (int i=0; i<RIPPLE_MAX_STRENGTH; i++) r->gaus_map[i] = 0;
 }
 
 
-void ripple_spawn(ripple_t *r, int x, int y, int size, float lifetime) {
+void ripple_spawn(ripple_t *r, int x, int y, int strength, float lifetime) {
     printf("spawned ripple at x=%i, y=%i\n", x, y);
-    size = rafgl_clampi(size, 1, RIPPLE_MAX_LEN);
+    strength = rafgl_clampi(strength, 1, RIPPLE_MAX_STRENGTH);
     lifetime = rafgl_clampf(lifetime, 0.01f, RIPPLE_MAX_LIFE);
     r->enabled = 1;
     r->x = x;
     r->y = y;
     r->age = 0;
     r->lifetime = lifetime * (1 << 16);
-    r->max_range = size;
-    r->range = rafgl_max_m(1, r->max_range / 10);
-    r->amplitude = size/2;
-    r->speed = ((r->max_range - r->range) << 16) / r->lifetime;
-    for (int i=0; i<RIPPLE_MAX_LEN; i++) r->gaus_map[i] = 0;
+    r->range = strength / 10.0f;
+    r->amplitude = strength/2;
+    r->speed = (RIPPLE_BASE_SPEED * ((float)strength / RIPPLE_MAX_STRENGTH));
+    for (int i=0; i<RIPPLE_MAX_STRENGTH; i++) r->gaus_map[i] = 0;
 }
 void ripple_update(ripple_t *r, float delta_time) {
-    r->age += delta_time * (1 << 16);
-    if (r->age >= r->lifetime) r->enabled = 0;
     if (!r->enabled) return;
-    printf("%i\n", r->lifetime - r->age);
+    r->age += delta_time * (1 << 16);
+    if (r->age >= r->lifetime) {
+        r->enabled = 0;
+        return;
+    }
+    r->speed *= RIPPLE_DAMP;
+    r->range += r->speed * delta_time;
+    r->range = rafgl_min_m(r->range, RIPPLE_MAX_STRENGTH);
+    printf("%f\n", r->range);
 }
 
 
