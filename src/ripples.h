@@ -32,8 +32,8 @@ typedef struct {
     int x, y;
 } pair_t;
 
+extern int bmap_width, bmap_height;
 extern pair_t *ripple_bump_map;
-extern pair_t *ripple_full_bump_map;
 extern rafgl_raster_t ripple_temp_raster;
 
 void ripple_bump_map_init();

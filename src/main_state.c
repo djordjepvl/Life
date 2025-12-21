@@ -78,10 +78,10 @@ void main_state_update(GLFWwindow *window, float delta_time, rafgl_game_data_t *
     // draw ripple bump map
     for (int y = 0; y < game_height; y++) {
     for (int x = 0; x < game_width; x++) {
-        int indx = x + y * game_width;
+        int indx = (x>>2) + (y>>2) * bmap_width;
 
-        int bx = ripple_full_bump_map[indx].x;
-        int by = ripple_full_bump_map[indx].y;
+        int bx = ripple_bump_map[indx].x;
+        int by = ripple_bump_map[indx].y;
 
         int rx = (bx * 128) / 64 + 128;
         int ry = (by * 128) / 64 + 128;

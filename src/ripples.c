@@ -8,7 +8,6 @@ int gaus_map[RIPPLE_MAX_STRENGTH+1][RIPPLE_MAX_STRENGTH/2];
 int bmap_width, bmap_height;
 pair_t *ripple_bump_map;
 pair_t *temp_blur_map;
-pair_t *ripple_full_bump_map;
 rafgl_raster_t ripple_temp_raster;
 
 
@@ -136,9 +135,6 @@ void ripple_bump_map_init() {
 
     temp_blur_map = malloc(sizeof(pair_t)*bmap_width*bmap_height);
     memset(temp_blur_map, 0, sizeof(pair_t) * bmap_width * bmap_height);
-    
-    ripple_full_bump_map = malloc(sizeof(pair_t)*game_width*game_height);
-    memset(ripple_full_bump_map, 0, sizeof(pair_t) * game_width * game_height);
 }
 void ripple_bump_map_reset() {
     memset(ripple_bump_map, 0, sizeof(pair_t) * bmap_width * bmap_height);
@@ -185,28 +181,12 @@ void ripple_bump_map_apply() {
     box_blur_h(ripple_bump_map, temp_blur_map, bmap_width, bmap_height);
     box_blur_v(temp_blur_map, ripple_bump_map, bmap_width, bmap_height);
 
-    for (int y = 0; y < bmap_height; y++) {
-    for (int x = 0; x < bmap_width; x++) {
-        pair_t val = ripple_bump_map[x + y * bmap_width];
-
-        int target_x_start = x * 4;
-        int target_y_start = y * 4;
-
-        for (int row = 0; row < 4; row++) {
-            int row_offset = (target_y_start + row) * game_width;
-            for (int col = 0; col < 4; col++) {
-                ripple_full_bump_map[target_x_start + col + row_offset] = val;
-            }
-        }
-    }
-}
-
     rafgl_raster_copy(&ripple_temp_raster, &raster);
     for (int y=0; y<game_height; y++) {
         for(int x=0; x<game_width; x++) {
-            int indx = x + y * game_width;
-            int nx = rafgl_clampi(x + ripple_full_bump_map[indx].x/10, 0, game_width-1);
-            int ny = rafgl_clampi(y + ripple_full_bump_map[indx].y/10, 0, game_height-1);
+            int indx = (x >> 2) + (y >> 2) * bmap_width;
+            int nx = rafgl_clampi(x + ripple_bump_map[indx].x, 0, game_width-1);
+            int ny = rafgl_clampi(y + ripple_bump_map[indx].y, 0, game_height-1);
             pixel_at_m(raster,x,y) = pixel_at_m(ripple_temp_raster, nx , ny);
         }
     }
