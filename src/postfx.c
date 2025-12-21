@@ -11,7 +11,6 @@ int *wave_offset_y_cache = NULL;
 void postfx_init() {
     rafgl_raster_init(&postfx_temp_raster, game_height, game_width);
 
-    // allocate caches
     wave_offset_x_cache = malloc(sizeof(int) * game_height);
     wave_offset_y_cache = malloc(sizeof(int) * game_width);
 }
@@ -20,7 +19,6 @@ void postfx_wave_update(float delta_time) {
     wave_time += delta_time;
     if (wave_time > POSTFX_WAVE_PHASE) wave_time -= POSTFX_WAVE_PHASE;
 
-    // precompute offsets for this frame
     for (int y = 0; y < game_height; y++) {
         wave_offset_x_cache[y] = (int)(10.0f * sinf((float)y / POSTFX_WAVE_PHASE + wave_time * POSTFX_WAVE_SPEED));
     }
