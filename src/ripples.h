@@ -1,5 +1,20 @@
 #pragma once
 
+/*
+Ovo je manje vise simulacija pomeranja vode koja koristi 30 kruznih talasa (ripple_t) koji
+se stvaraju oko igraca kad se pomera i dodavaju se jedan na drugi.
+
+ripple_spawn_any() stvara talas na datim koordinatama x i y jacine strength koji
+ima trajanje lifetime.
+
+u ripple_update() talas se na osnovu trenutnog stanja racuna i dodaje na 
+ripple_bump_map, koji je 1/8 velicine prozora igrice
+
+nakon sto su se svi talasi dodali, u ripple_bump_map_apply() radim blur
+filter nad mapom da bi talasi izgledali vise spojeno, a onda
+da bi malo poboljsao rezoluciju radim box scaling u
+ugnezdjenoj petlji
+*/
 
 #define RIPPLE_MAX_STRENGTH 1024
 #define RIPPLE_MAX_LIFE 5.0f

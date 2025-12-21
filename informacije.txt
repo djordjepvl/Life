@@ -1,0 +1,34 @@
+Radio sam domaci u Visual Studio Code (u Windows 11).
+Makefile bi trebao da radi i na Windows-u i na Linux-u.
+Na Windows-u treba da imate instaliran mingw da bi mogao
+da procita Makefile. U .vscode/launch.json treba staviti
+putanju do njegobog gdb.exe debuggera (ja sam ga instalirao
+komandom "chocolatey install mingw" pa moj path ide tamo gde ga
+chocolatey automatski instalira)
+
+Ovo je kopija online igrice FISHY! koja koristi bezveze slike ali ima
+efekte talasanja i malo komplikovanije kretanje igraca (ribica je brza
+kad je mala, spora kad je dzinovska i to utice na talase). Poenta
+igrice je pobeci od riba vecih od sebe, a jesti
+ribe manje od sebe i time porasti.
+
+Malo sam modifikovao rafgl da bi mogao da crtam transparentne
+slike i da bi mogao brze da ih skaliram. Prebacivao sam dosta
+float vrednosti u 16.16 intove
+
+Posto moja igra zahteva dinamicno povecavanje istih slika (igrac se povecava
+kada pojede ribicu i moze biti sitnan ili da bude veliki kao ceo ekran),
+napravio sam posebnu strukturu asset_t za crtanje slika (objasnjenje u assets.h);
+
+Efekat talasa iza igraca je objasnjen u ripples.h
+
+
+KONTROLE:
+
+Igrac se pomera na strelice
+R - resetuje igraca
+E - upali ostale ribe
+D - izgasi ostale ribe
+W - povecaj igraca
+S - smanji igraca
+Klik na ekran stvara talas a njegove osobine zavise od toga gde je mis na ekranu
