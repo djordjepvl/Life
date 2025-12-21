@@ -62,6 +62,7 @@ void main_state_update(GLFWwindow *window, float delta_time, rafgl_game_data_t *
     fish_array_render();
     player_render(&player);
     ripple_bump_map_apply();
+    return;
     for (int y = 0; y < game_height; y++) {
     for (int x = 0; x < game_width; x++) {
         int indx = x + y * game_width;

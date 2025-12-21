@@ -139,7 +139,7 @@ void ripple_bump_map_reset() {
 }
 
 void box_blur_h(pair_t *src, pair_t *dst, int w, int h) {
-    int radius = 2;
+    int radius = 4;
     for (int y = 0; y < h; y++) {
         for (int x = 0; x < w; x++) {
             int sum_x = 0, sum_y = 0, count = 0;
@@ -157,7 +157,7 @@ void box_blur_h(pair_t *src, pair_t *dst, int w, int h) {
     }
 }
 void box_blur_v(pair_t *src, pair_t *dst, int w, int h) {
-    int radius = 2;
+    int radius = 4;
     for (int x = 0; x < w; x++) {
         for (int y = 0; y < h; y++) {
             int sum_x = 0, sum_y = 0, count = 0;
@@ -188,5 +188,15 @@ void ripple_bump_map_apply() {
         }
     }
 
-
+    rafgl_raster_t original;
+    rafgl_raster_init(&original, game_height, game_width);
+    rafgl_raster_copy(&original, &raster);
+    for (int y=0; y<game_height; y++) {
+        for(int x=0; x<game_width; x++) {
+            int indx = x + y * game_width;
+            int nx = rafgl_clampi(x + ripple_full_bump_map[indx].x/10, 0, game_width-1);
+            int ny = rafgl_clampi(y + ripple_full_bump_map[indx].y/10, 0, game_height-1);
+            pixel_at_m(raster,x,y) = pixel_at_m(original, nx , ny);
+        }
+    }
 }
