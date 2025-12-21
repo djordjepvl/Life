@@ -59,12 +59,24 @@ void ripple_update(ripple_t *r, float delta_time) {
     }
     r->speed *= RIPPLE_DAMP;
     r->range += r->speed * delta_time;
-    r->range = rafgl_min_m(r->range, RIPPLE_MAX_STRENGTH);
+    r->range = rafgl_min_m(r->range, RIPPLE_MAX_STRENGTH-1);
     int range = (int)r->range;
     int thickness = (int)(r->range*0.3f);
     float a = 1.0f - (float)r->age / (float)r->lifetime;
     for (int x = range; x > range - thickness*2; x--) {
         r->gaus_map[x] = a * r->amplitude * pow(4, -(float)x*x/(float)thickness);
+    }
+
+    int x0 = rafgl_clampi(r->x - range, 0, game_width);
+    int x1 = rafgl_clampi(r->x + range, 0, game_width);
+    int y0 = rafgl_clampi(r->y - range, 0, game_height);
+    int y1 = rafgl_clampi(r->y + range, 0, game_height);
+
+    for (int y=y0; y<y1; y++) {
+        for (int x=x0; x<x1; x++) {
+            ripple_bump_map[x + y*game_width].x = 100;
+            ripple_bump_map[x + y*game_width].y = 100;
+        }
     }
 }
 
