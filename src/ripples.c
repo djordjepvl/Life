@@ -5,6 +5,10 @@ ripple_t ripples[RIPPLE_COUNT];
 
 int gaus_map[RIPPLE_MAX_STRENGTH+1][RIPPLE_MAX_STRENGTH/2];
 
+int bmap_width, bmap_height;
+pair_t *ripple_bump_map;
+
+
 void ripple_array_init() {
     for (int i=0; i<RIPPLE_MAX_STRENGTH+1; i++) {
         for (int j=0; j<1+RIPPLE_MAX_STRENGTH/3; j++)
@@ -64,8 +68,8 @@ void ripple_update(ripple_t *r, float delta_time) {
     r->speed *= RIPPLE_DAMP;
     r->range += r->speed * delta_time;
     r->range = rafgl_min_m(r->range, RIPPLE_MAX_STRENGTH-1);
-    int range = (int)r->range;
-    int thickness = (int)(r->range*0.45f);
+    int range = (int)r->range / 2.0f;
+    int thickness = (int)(range*0.45f);
     float a = 1.0f - (float)r->age / (float)r->lifetime;
     
     if (!gaus_map[RIPPLE_MAX_STRENGTH][thickness]) {
@@ -76,23 +80,25 @@ void ripple_update(ripple_t *r, float delta_time) {
         gaus_map[RIPPLE_MAX_STRENGTH][thickness] = 1;
     }
 
+    int rx = r->x / 2;
+    int ry = r->y / 2;
     int r2_outer = range * range;
     int r2_inner = (range - thickness * 2) * (range - thickness * 2);
 
     for (int dy = -range; dy <= range; dy++) {
-        int y = r->y + dy;
-        if (y < 0 || y >= game_height) continue;
+        int y = ry + dy;
+        if (y < 0 || y >= bmap_height) continue;
 
         int dx_limit = (int)sqrtf(r2_outer - dy * dy);
         for (int dx = -dx_limit; dx <= dx_limit; dx++) {
-            int x = r->x + dx;
-            if (x < 0 || x >= game_width) continue;
+            int x = rx + dx;
+            if (x < 0 || x >= bmap_width) continue;
 
             int dist2 = dx * dx + dy * dy;
             if (dist2 < r2_inner || dist2 > r2_outer) continue;
 
             int dist = (int)sqrtf(dist2);
-            int indx = x + y * game_width;
+            int indx = x + y * bmap_width;
 
             ripple_bump_map[indx].x += a * (r->amplitude * gaus_map[dist][thickness] >> 16);
             ripple_bump_map[indx].y += a * (r->amplitude * gaus_map[dist][thickness] >> 16);
@@ -101,14 +107,15 @@ void ripple_update(ripple_t *r, float delta_time) {
 }
 
 
-pair_t *ripple_bump_map;
 
 void ripple_bump_map_init() {
-    ripple_bump_map = malloc(sizeof(pair_t)*game_width*game_height);
+    bmap_width = game_width/2;
+    bmap_height = game_height/2;
+    ripple_bump_map = malloc(sizeof(pair_t)*bmap_width*bmap_height);
     ripple_bump_map_reset();
 }
 void ripple_bump_map_reset() {
-    memset(ripple_bump_map, 0, sizeof(pair_t) * game_width * game_height);
+    memset(ripple_bump_map, 0, sizeof(pair_t) * bmap_width * bmap_height);
 }
 void ripple_bump_map_apply() {
 
