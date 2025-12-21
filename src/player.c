@@ -14,11 +14,19 @@ void player_init(player_t *p, float x, float y, uint32_t color, asset_t *main_as
     p->color.rgba = color;
     p->main_asset = *main_asset;
     p->horizontal_flip = 0;
+    p->ripple_timer = PLAYER_RIPPLE_FREQUENCY;
     
 }
 
 void player_update(player_t *p, float delta_time, rafgl_game_data_t *game_data) {
     player_update_pos(p, delta_time, game_data);
+    float speed = sqrtf(p->dx * p->dx + p->dy * p->dy);
+    if (speed < 0.2f) return;
+    p->ripple_timer -= delta_time;
+    if (p->ripple_timer<0.0f) {
+        ripple_spawn_any(p->x, p->y, rafgl_max_m(100 + p->size * speed/2, 200), 1.5f - speed/10 );
+        p->ripple_timer = PLAYER_RIPPLE_FREQUENCY;
+    }
 }
 
 void player_render(player_t *p) {
@@ -34,8 +42,8 @@ void player_render(player_t *p) {
 void player_update_pos(player_t *p, float delta_time, rafgl_game_data_t *game_data) {
     if (!p->enabled) return;
 
-    if (game_data->keys_down[GLFW_KEY_W]) player_set_size(p, p->size+2.0f);
-    if (game_data->keys_down[GLFW_KEY_S]) player_set_size(p, p->size-2.0f);
+    if (game_data->keys_down[GLFW_KEY_W]) player_set_size(p, p->size*1.1f);
+    if (game_data->keys_down[GLFW_KEY_S]) player_set_size(p, p->size/1.1f);
     
 
     const float BASE_FPS = 240.0f;

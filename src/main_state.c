@@ -58,10 +58,9 @@ void main_state_update(GLFWwindow *window, float delta_time, rafgl_game_data_t *
 
     //FILLING RASTER
     raster_draw_scaled_asset(&raster, &testBackground, 0, 0, game_width, game_height, game_center_x, game_center_y, 0, 1);
-    
+    ripple_bump_map_apply();
     fish_array_render();
     player_render(&player);
-    ripple_bump_map_apply();
     return;
     for (int y = 0; y < game_height; y++) {
     for (int x = 0; x < game_width; x++) {

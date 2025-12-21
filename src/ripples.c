@@ -73,7 +73,12 @@ void ripple_update(ripple_t *r, float delta_time) {
     int range = (int)r->range / 4.0f;
     int thickness = (int)(range*0.45f);
     float a = 1.0f - (float)r->age / (float)r->lifetime;
-    
+    float fade_in_threshold = 0.7f;
+
+    float intensity;
+    if (a > fade_in_threshold) intensity = (1.0f - a) / (1.0f - fade_in_threshold);
+    else intensity = a / fade_in_threshold;
+
     if (!gaus_map[RIPPLE_MAX_STRENGTH][thickness]) {
         for (int x = range - thickness * 2; x <= range; x++) {
             float t = (float)(x - (range - thickness));
@@ -81,6 +86,7 @@ void ripple_update(ripple_t *r, float delta_time) {
         }
         gaus_map[RIPPLE_MAX_STRENGTH][thickness] = 1;
     }
+    a = intensity * intensity * intensity;
 
     int rx = r->x / 4;
     int ry = r->y / 4;
@@ -106,11 +112,9 @@ void ripple_update(ripple_t *r, float delta_time) {
 
             int g = (r->amplitude * gaus_map[dist][thickness]) >> 16;
 
-            /* approximate normalize: dx/dist, dy/dist */
             int offx = (dx * g) / (dist + 1);
             int offy = (dy * g) / (dist + 1);
 
-            /* apply age fade */
             offx = (offx * a);
             offy = (offy * a);
 

@@ -2,9 +2,9 @@
 
 
 #define RIPPLE_MAX_STRENGTH 1024
-#define RIPPLE_MAX_LIFE 2.0f
+#define RIPPLE_MAX_LIFE 5.0f
 #define RIPPLE_BASE_SPEED 700
-#define RIPPLE_DAMP 0.98f
+#define RIPPLE_DAMP 0.96f
 typedef struct {
     int enabled;
     int x,y;
@@ -16,7 +16,7 @@ typedef struct {
 } ripple_t;
 
 
-#define RIPPLE_COUNT 10
+#define RIPPLE_COUNT 20
 extern ripple_t ripples[RIPPLE_COUNT];
 
 void ripple_array_init();
