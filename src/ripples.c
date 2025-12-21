@@ -3,7 +3,10 @@
 
 ripple_t ripples[RIPPLE_COUNT];
 
+int gaus_map[RIPPLE_MAX_STRENGTH];
+
 void ripple_array_init() {
+    for (int i=0; i<RIPPLE_MAX_STRENGTH; i++) gaus_map[i] = 0;
     for (int i=0; i<RIPPLE_COUNT; i++) ripple_init(&ripples[i]);
 }
 void ripple_array_update(float delta_time) {
@@ -32,7 +35,6 @@ void ripple_init(ripple_t *r) {
     r->range = 0;
     r->amplitude = 0;
     r->speed = 0;
-    for (int i=0; i<RIPPLE_MAX_STRENGTH; i++) r->gaus_map[i] = 0;
 }
 
 
@@ -56,33 +58,40 @@ void ripple_update(ripple_t *r, float delta_time) {
         r->enabled = 0;
         return;
     }
-    for (int i=0; i<RIPPLE_MAX_STRENGTH; i++) r->gaus_map[i] = 0;
     r->speed *= RIPPLE_DAMP;
     r->range += r->speed * delta_time;
     r->range = rafgl_min_m(r->range, RIPPLE_MAX_STRENGTH-1);
     int range = (int)r->range;
     int thickness = (int)(r->range*0.45f);
     float a = 1.0f - (float)r->age / (float)r->lifetime;
-    for (int x = range; x > range - thickness*2; x--) {
+
+    for (int i = 0; i < RIPPLE_MAX_STRENGTH; i++)
+        gaus_map[i] = 0;
+    for (int x = range - thickness * 2; x <= range; x++) {
         float t = (float)(x - (range - thickness));
-        r->gaus_map[x] = a * r->amplitude * powf(1.05f, -(float)t*t/(float)thickness);
+        gaus_map[x] = a * r->amplitude * powf(1.05f, -t * t / (float)thickness);
     }
 
-    int x0 = rafgl_clampi(r->x - range, 0, game_width);
-    int x1 = rafgl_clampi(r->x + range, 0, game_width);
-    int y0 = rafgl_clampi(r->y - range, 0, game_height);
-    int y1 = rafgl_clampi(r->y + range, 0, game_height);
+    int r2_outer = range * range;
+    int r2_inner = (range - thickness * 2) * (range - thickness * 2);
 
-    for (int y=y0; y<y1; y++) {
-        for (int x=x0; x<x1; x++) {
-            int dx = x - r->x;
-            int dy = y - r->y;
-            int dist = (int)sqrtf(dx*dx + dy*dy);
-            if (dist >= RIPPLE_MAX_STRENGTH) continue;
-            
-            int indx = x + y*game_width;
-            ripple_bump_map[indx].x += r->gaus_map[dist];
-            ripple_bump_map[indx].y += r->gaus_map[dist];
+    for (int dy = -range; dy <= range; dy++) {
+        int y = r->y + dy;
+        if (y < 0 || y >= game_height) continue;
+
+        int dx_limit = (int)sqrtf(r2_outer - dy * dy);
+        for (int dx = -dx_limit; dx <= dx_limit; dx++) {
+            int x = r->x + dx;
+            if (x < 0 || x >= game_width) continue;
+
+            int dist2 = dx * dx + dy * dy;
+            if (dist2 < r2_inner || dist2 > r2_outer) continue;
+
+            int dist = (int)sqrtf(dist2);
+            int indx = x + y * game_width;
+
+            ripple_bump_map[indx].x += gaus_map[dist];
+            ripple_bump_map[indx].y += gaus_map[dist];
         }
     }
 }
