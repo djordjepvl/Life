@@ -3,10 +3,13 @@
 
 ripple_t ripples[RIPPLE_COUNT];
 
-int gaus_map[RIPPLE_MAX_STRENGTH];
+int gaus_map[RIPPLE_MAX_STRENGTH+1][RIPPLE_MAX_STRENGTH/2];
 
 void ripple_array_init() {
-    for (int i=0; i<RIPPLE_MAX_STRENGTH; i++) gaus_map[i] = 0;
+    for (int i=0; i<RIPPLE_MAX_STRENGTH+1; i++) {
+        for (int j=0; j<1+RIPPLE_MAX_STRENGTH/3; j++)
+            gaus_map[i][j] = 0;
+    }
     for (int i=0; i<RIPPLE_COUNT; i++) ripple_init(&ripples[i]);
 }
 void ripple_array_update(float delta_time) {
@@ -64,12 +67,13 @@ void ripple_update(ripple_t *r, float delta_time) {
     int range = (int)r->range;
     int thickness = (int)(r->range*0.45f);
     float a = 1.0f - (float)r->age / (float)r->lifetime;
-
-    for (int i = 0; i < RIPPLE_MAX_STRENGTH; i++)
-        gaus_map[i] = 0;
-    for (int x = range - thickness * 2; x <= range; x++) {
-        float t = (float)(x - (range - thickness));
-        gaus_map[x] = a * r->amplitude * powf(1.05f, -t * t / (float)thickness);
+    
+    if (!gaus_map[RIPPLE_MAX_STRENGTH][thickness]) {
+        for (int x = range - thickness * 2; x <= range; x++) {
+            float t = (float)(x - (range - thickness));
+            gaus_map[x][thickness] = powf(1.05f, -t * t / (float)thickness) * (1 << 16);
+        }
+        gaus_map[RIPPLE_MAX_STRENGTH][thickness] = 1;
     }
 
     int r2_outer = range * range;
@@ -90,8 +94,8 @@ void ripple_update(ripple_t *r, float delta_time) {
             int dist = (int)sqrtf(dist2);
             int indx = x + y * game_width;
 
-            ripple_bump_map[indx].x += gaus_map[dist];
-            ripple_bump_map[indx].y += gaus_map[dist];
+            ripple_bump_map[indx].x += a * (r->amplitude * gaus_map[dist][thickness] >> 16);
+            ripple_bump_map[indx].y += a * (r->amplitude * gaus_map[dist][thickness] >> 16);
         }
     }
 }
