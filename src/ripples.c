@@ -75,7 +75,7 @@ void ripple_update(ripple_t *r, float delta_time) {
     if (!gaus_map[RIPPLE_MAX_STRENGTH][thickness]) {
         for (int x = range - thickness * 2; x <= range; x++) {
             float t = (float)(x - (range - thickness));
-            gaus_map[x][thickness] = powf(1.05f, -t * t / (float)thickness) * (1 << 16);
+            gaus_map[x][thickness] = powf(1.4f, -t * t / (float)thickness) * (1 << 16);
         }
         gaus_map[RIPPLE_MAX_STRENGTH][thickness] = 1;
     }
@@ -100,8 +100,20 @@ void ripple_update(ripple_t *r, float delta_time) {
             int dist = (int)sqrtf(dist2);
             int indx = x + y * bmap_width;
 
-            ripple_bump_map[indx].x += a * (r->amplitude * gaus_map[dist][thickness] >> 16);
-            ripple_bump_map[indx].y += a * (r->amplitude * gaus_map[dist][thickness] >> 16);
+
+
+            int g = (r->amplitude * gaus_map[dist][thickness]) >> 16;
+
+            /* approximate normalize: dx/dist, dy/dist */
+            int offx = (dx * g) / (dist + 1);
+            int offy = (dy * g) / (dist + 1);
+
+            /* apply age fade */
+            offx = (offx * a);
+            offy = (offy * a);
+
+            ripple_bump_map[indx].x += offx;
+            ripple_bump_map[indx].y += offy;
         }
     }
 }
