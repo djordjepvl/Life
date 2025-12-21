@@ -26,6 +26,6 @@ pair_t *ripple_bump_map;
 void ripple_bump_map_init() {
 
 }
-void ripple_bump_map_render() {
-    
+void ripple_bump_map_apply() {
+
 }
