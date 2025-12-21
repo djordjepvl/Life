@@ -60,7 +60,12 @@ void ripple_update(ripple_t *r, float delta_time) {
     r->speed *= RIPPLE_DAMP;
     r->range += r->speed * delta_time;
     r->range = rafgl_min_m(r->range, RIPPLE_MAX_STRENGTH);
-    printf("%f\n", r->range);
+    int range = (int)r->range;
+    int thickness = (int)(r->range*0.3f);
+    float a = 1.0f - (float)r->age / (float)r->lifetime;
+    for (int x = range; x > range - thickness*2; x--) {
+        r->gaus_map[x] = a * r->amplitude * pow(4, -(float)x*x/(float)thickness);
+    }
 }
 
 
