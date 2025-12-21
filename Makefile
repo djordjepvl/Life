@@ -10,6 +10,8 @@ IN = main.c \
      src/assets.c \
      src/player.c \
      src/fish.c \
+     src/postfx.c \
+     src/ripples.c \
      src/glad/glad.c
 
 OUT = main

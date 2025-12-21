@@ -7,6 +7,7 @@ typedef struct {
     float size;
     int width, height;
     float accel, damp;
+    float ripple_timer, ripple_strength, ripple_life;
 
     float h_border_damp, v_border_damp;
     

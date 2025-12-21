@@ -13,6 +13,8 @@
 #include <assets.h>
 #include <player.h>
 #include <fish.h>
+#include <ripples.h>
+#include <postfx.h>
 
 //Main state functions
 void main_state_init(GLFWwindow *window, void *args, int width, int height);

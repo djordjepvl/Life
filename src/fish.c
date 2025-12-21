@@ -79,7 +79,7 @@ void fish_random_spawn(fish_t *f) {
     float s = randf();
     s = s*s*s*s*s;
     fish_set_size(f, rafgl_lerpf(FISH_MIN_SIZE, FISH_MAX_SIZE, s));
-    f->speed = (FISH_BASE_SPEED + FISH_SPEED_VAR*randf()*random_sign() ) * __max((1.0f-s), FISH_MIN_SPEED);
+    f->speed = (FISH_BASE_SPEED + FISH_SPEED_VAR*randf()*random_sign() ) * rafgl_max_m((1.0f-s), FISH_MIN_SPEED);
     f->y = randf() * game_height;
 
     //choose side

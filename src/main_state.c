@@ -24,8 +24,12 @@ void main_state_init(GLFWwindow *window, void *args, int width, int height)
     player_init(&player, game_width/2, game_height/2, PLAYER_COLOR, &testFish);
     player.enabled = 1;
     fish_array_init();
-    fish_array_enable();
+    //fish_array_enable();
 
+    ripple_bump_map_init();
+    ripple_array_init();
+    postfx_init();
+    
     game_center_x = game_width/2.0f;
     game_center_y = game_height/2.0f;
 }
@@ -33,12 +37,20 @@ void main_state_init(GLFWwindow *window, void *args, int width, int height)
 
 void main_state_update(GLFWwindow *window, float delta_time, rafgl_game_data_t *game_data, void *args)
 {
+    if (game_data->is_lmb_down) {
+        ripple_spawn_any(game_data->mouse_pos_x, game_data->mouse_pos_y,
+            RIPPLE_MAX_STRENGTH * 1.0f * game_data->mouse_pos_x/game_width,
+            RIPPLE_MAX_LIFE * 1.0f * game_data->mouse_pos_y/game_height);
+    }
+
     if (game_data->keys_pressed[RAFGL_KEY_D]) fish_array_disable();
     if (game_data->keys_pressed[RAFGL_KEY_E]) fish_array_enable();
     if (game_data->keys_pressed[GLFW_KEY_R]) player_respawn(&player);
     //GAME LOGIC UPDATE
     player_update(&player, delta_time, game_data);
     fish_array_update(delta_time, game_data);
+    ripple_array_update(delta_time);
+    postfx_wave_update(delta_time);
 
     //COLLISION CHECKS
     detect_collision(delta_time);
@@ -48,9 +60,29 @@ void main_state_update(GLFWwindow *window, float delta_time, rafgl_game_data_t *
 
     //FILLING RASTER
     raster_draw_scaled_asset(&raster, &testBackground, 0, 0, game_width, game_height, game_center_x, game_center_y, 0, 1);
-    
+    ripple_bump_map_apply();
     fish_array_render();
     player_render(&player);
+    postfx_wave_render();
+    return;
+
+    // draw ripple bump map
+    for (int y = 0; y < game_height; y++) {
+    for (int x = 0; x < game_width; x++) {
+        int indx = x + y * game_width;
+
+        int bx = ripple_full_bump_map[indx].x;
+        int by = ripple_full_bump_map[indx].y;
+
+        int rx = (bx * 128) / 64 + 128;
+        int ry = (by * 128) / 64 + 128;
+
+        rx = rafgl_clampi(rx, 0, 255);
+        ry = rafgl_clampi(ry, 0, 255);
+
+        pixel_at_m(raster, x, y).rgba = rafgl_RGB(rx, ry, 128);
+    }
+}
 
 }
 
