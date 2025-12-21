@@ -3,7 +3,7 @@
 
 #define RIPPLE_MAX_STRENGTH 1024
 #define RIPPLE_MAX_LIFE 5.0f
-#define RIPPLE_BASE_SPEED 1000
+#define RIPPLE_BASE_SPEED 700
 #define RIPPLE_DAMP 0.97f
 typedef struct {
     int enabled;

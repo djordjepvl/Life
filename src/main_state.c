@@ -39,7 +39,7 @@ void main_state_update(GLFWwindow *window, float delta_time, rafgl_game_data_t *
     if (game_data->is_lmb_down) {
         ripple_spawn_any(game_data->mouse_pos_x, game_data->mouse_pos_y,
             RIPPLE_MAX_STRENGTH * 1.0f * game_data->mouse_pos_x/game_width,
-            RIPPLE_MAX_LIFE * 1.0f * game_data->mouse_pos_x/game_width);
+            RIPPLE_MAX_LIFE * 1.0f * game_data->mouse_pos_y/game_height);
     }
 
     if (game_data->keys_pressed[RAFGL_KEY_D]) fish_array_disable();

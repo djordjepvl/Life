@@ -45,7 +45,7 @@ void ripple_spawn(ripple_t *r, int x, int y, int strength, float lifetime) {
     r->y = y;
     r->age = 0;
     r->lifetime = lifetime * (1 << 16);
-    r->range = strength / 10.0f;
+    r->range = strength / 7.0f;
     r->amplitude = strength/2;
     r->speed = (RIPPLE_BASE_SPEED * ((float)strength / RIPPLE_MAX_STRENGTH));
     for (int i=0; i<RIPPLE_MAX_STRENGTH; i++) r->gaus_map[i] = 0;
