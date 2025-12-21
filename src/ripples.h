@@ -15,9 +15,10 @@ extern ripple_t ripples[RIPPLE_COUNT];
 
 void ripple_array_init();
 void ripple_array_update(float delta_time);
+void ripple_spawn_any(int x, int y, int size, int lifetime);
 
 void ripple_init(ripple_t *r);
-void ripple_spawn(ripple_t *r,int size, int lifetime);
+void ripple_spawn(ripple_t *r, int x, int y, int size, int lifetime);
 void ripple_update(ripple_t *r, float delta_time);
 
 
