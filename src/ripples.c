@@ -83,7 +83,7 @@ void ripple_update(ripple_t *r, float delta_time) {
     if (!gaus_map[RIPPLE_MAX_STRENGTH][thickness]) {
         for (int x = range - thickness * 2; x <= range; x++) {
             float t = (float)(x - (range - thickness));
-            gaus_map[x][thickness] = powf(1.1f, -t * t / (float)thickness) * (1 << 16);
+            gaus_map[x][thickness] = powf(4.0f, -t * t / (float)thickness) * (1 << 16);
         }
         gaus_map[RIPPLE_MAX_STRENGTH][thickness] = 1;
     }
@@ -178,8 +178,8 @@ void box_blur_v(pair_t *src, pair_t *dst, int w, int h) {
 }
 
 void ripple_bump_map_apply() {
-    box_blur_h(ripple_bump_map, temp_blur_map, bmap_width, bmap_height);
-    box_blur_v(temp_blur_map, ripple_bump_map, bmap_width, bmap_height);
+    //box_blur_h(ripple_bump_map, temp_blur_map, bmap_width, bmap_height);
+    //box_blur_v(temp_blur_map, ripple_bump_map, bmap_width, bmap_height);
 
     rafgl_raster_copy(&ripple_temp_raster, &raster);
     for (int y=0; y<game_height; y++) {

@@ -131,8 +131,6 @@ void handle_collision(int i, float delta_time) {
     }
     else {
         player.enabled = 0;
-        player.x = game_center_x;
-        player.y = game_center_y;
         fish_set_size(&fish[i], fish[i].size + player.size * EAT_MULTIPLIER);
     }
 }

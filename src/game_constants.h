@@ -19,7 +19,7 @@ extern const float PLAYER_DAMP_END;
 extern const float PLAYER_START_SIZE;
 extern const float PLAYER_MIN_SIZE;
 extern const float PLAYER_MAX_SIZE;
-#define PLAYER_RIPPLE_FREQUENCY 0.06f
+#define PLAYER_RIPPLE_FREQUENCY 0.02f
 
 // FISH
 #define FISH_MAX_COUNT 40

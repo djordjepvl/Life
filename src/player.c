@@ -19,6 +19,7 @@ void player_init(player_t *p, float x, float y, uint32_t color, asset_t *main_as
 }
 
 void player_update(player_t *p, float delta_time, rafgl_game_data_t *game_data) {
+    if (!p->enabled) return;
     player_update_pos(p, delta_time, game_data);
     float speed = sqrtf(p->dx * p->dx + p->dy * p->dy);
     if (speed < 0.2f) return;
