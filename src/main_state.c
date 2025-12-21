@@ -58,6 +58,13 @@ void main_state_update(GLFWwindow *window, float delta_time, rafgl_game_data_t *
     player_render(&player);
     ripple_bump_map_apply();
 
+    for (int y=0; y<game_height; y++) {
+        for(int x=0; x<game_width; x++) {
+            int indx = x + y*game_width;
+            pixel_at_m(raster, x, y).rgba = rafgl_RGB(ripple_bump_map[indx].x, ripple_bump_map[indx].y, 0);
+        }
+    }
+
 }
 
 void main_state_render(GLFWwindow *window, void *args)
