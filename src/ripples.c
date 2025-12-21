@@ -37,7 +37,6 @@ void ripple_init(ripple_t *r) {
 
 
 void ripple_spawn(ripple_t *r, int x, int y, int strength, float lifetime) {
-    printf("spawned ripple at x=%i, y=%i\n", x, y);
     strength = rafgl_clampi(strength, 1, RIPPLE_MAX_STRENGTH);
     lifetime = rafgl_clampf(lifetime, 0.01f, RIPPLE_MAX_LIFE);
     r->enabled = 1;
@@ -57,15 +56,16 @@ void ripple_update(ripple_t *r, float delta_time) {
         r->enabled = 0;
         return;
     }
+    for (int i=0; i<RIPPLE_MAX_STRENGTH; i++) r->gaus_map[i] = 0;
     r->speed *= RIPPLE_DAMP;
     r->range += r->speed * delta_time;
     r->range = rafgl_min_m(r->range, RIPPLE_MAX_STRENGTH-1);
     int range = (int)r->range;
-    int thickness = (int)(r->range*0.3f);
+    int thickness = (int)(r->range*0.45f);
     float a = 1.0f - (float)r->age / (float)r->lifetime;
     for (int x = range; x > range - thickness*2; x--) {
-        float t = (float)(x - range);
-        r->gaus_map[x] = a * r->amplitude * powf(4.0f, -(float)t*t/(float)thickness);
+        float t = (float)(x - (range - thickness));
+        r->gaus_map[x] = a * r->amplitude * powf(1.05f, -(float)t*t/(float)thickness);
     }
 
     int x0 = rafgl_clampi(r->x - range, 0, game_width);
@@ -81,8 +81,8 @@ void ripple_update(ripple_t *r, float delta_time) {
             if (dist >= RIPPLE_MAX_STRENGTH) continue;
             
             int indx = x + y*game_width;
-            ripple_bump_map[indx].x = r->gaus_map[dist];
-            ripple_bump_map[indx].y = r->gaus_map[dist];
+            ripple_bump_map[indx].x += r->gaus_map[dist];
+            ripple_bump_map[indx].y += r->gaus_map[dist];
         }
     }
 }

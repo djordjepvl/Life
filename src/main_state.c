@@ -24,7 +24,7 @@ void main_state_init(GLFWwindow *window, void *args, int width, int height)
     player_init(&player, game_width/2, game_height/2, PLAYER_COLOR, &testFish);
     player.enabled = 1;
     fish_array_init();
-    fish_array_enable();
+    //fish_array_enable();
 
     ripple_bump_map_init();
     ripple_array_init();
@@ -62,11 +62,14 @@ void main_state_update(GLFWwindow *window, float delta_time, rafgl_game_data_t *
     fish_array_render();
     player_render(&player);
     ripple_bump_map_apply();
-
+    
     for (int y=0; y<game_height; y++) {
         for(int x=0; x<game_width; x++) {
             int indx = x + y*game_width;
-            pixel_at_m(raster, x, y).rgba = rafgl_RGB(ripple_bump_map[indx].x, ripple_bump_map[indx].y, 0);
+            pixel_at_m(raster, x, y).rgba = rafgl_RGB(
+                rafgl_clampi(ripple_bump_map[indx].x,0,255), 
+                rafgl_clampi(ripple_bump_map[indx].y, 0, 255), 
+                0);
         }
     }
 

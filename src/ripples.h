@@ -16,7 +16,7 @@ typedef struct {
 } ripple_t;
 
 
-#define RIPPLE_COUNT 1
+#define RIPPLE_COUNT 20
 extern ripple_t ripples[RIPPLE_COUNT];
 
 void ripple_array_init();
