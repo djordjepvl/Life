@@ -13,6 +13,7 @@
 #include <assets.h>
 #include <player.h>
 #include <fish.h>
+#include <ripples.h>
 #include <postfx.h>
 
 //Main state functions
