@@ -1,5 +1,8 @@
 #pragma once
 
+
+#define RIPPLE_MAX_LEN 800
+#define RIPPLE_MAX_LIFE 5.0f
 typedef struct {
     int enabled;
     int x,y;
@@ -7,18 +10,19 @@ typedef struct {
     int range, max_range;
     int amplitude;
     int speed;
-    int *gaus_map;
+    int gaus_map[RIPPLE_MAX_LEN];
 } ripple_t;
 
-#define RIPPLE_COUNT 20
+
+#define RIPPLE_COUNT 1
 extern ripple_t ripples[RIPPLE_COUNT];
 
 void ripple_array_init();
 void ripple_array_update(float delta_time);
-void ripple_spawn_any(int x, int y, int size, int lifetime);
+void ripple_spawn_any(int x, int y, int size, float lifetime);
 
 void ripple_init(ripple_t *r);
-void ripple_spawn(ripple_t *r, int x, int y, int size, int lifetime);
+void ripple_spawn(ripple_t *r, int x, int y, int size, float lifetime);
 void ripple_update(ripple_t *r, float delta_time);
 
 

@@ -36,7 +36,7 @@ void main_state_init(GLFWwindow *window, void *args, int width, int height)
 
 void main_state_update(GLFWwindow *window, float delta_time, rafgl_game_data_t *game_data, void *args)
 {
-    if (game_data->is_lmb_down) ripple_spawn_any(game_data->mouse_pos_x, game_data->mouse_pos_y, 20, 10);
+    if (game_data->is_lmb_down) ripple_spawn_any(game_data->mouse_pos_x, game_data->mouse_pos_y, 400, 2.5f);
 
     if (game_data->keys_pressed[RAFGL_KEY_D]) fish_array_disable();
     if (game_data->keys_pressed[RAFGL_KEY_E]) fish_array_enable();
