@@ -9,6 +9,7 @@ int bmap_width, bmap_height;
 pair_t *ripple_bump_map;
 pair_t *temp_blur_map;
 pair_t *ripple_full_bump_map;
+rafgl_raster_t ripple_temp_raster;
 
 
 void ripple_array_init() {
@@ -17,6 +18,7 @@ void ripple_array_init() {
             gaus_map[i][j] = 0;
     }
     for (int i=0; i<RIPPLE_COUNT; i++) ripple_init(&ripples[i]);
+    rafgl_raster_init(&ripple_temp_raster, game_height, game_width);
 }
 void ripple_array_update(float delta_time) {
     ripple_bump_map_reset();
@@ -199,15 +201,13 @@ void ripple_bump_map_apply() {
     }
 }
 
-    rafgl_raster_t original;
-    rafgl_raster_init(&original, game_height, game_width);
-    rafgl_raster_copy(&original, &raster);
+    rafgl_raster_copy(&ripple_temp_raster, &raster);
     for (int y=0; y<game_height; y++) {
         for(int x=0; x<game_width; x++) {
             int indx = x + y * game_width;
             int nx = rafgl_clampi(x + ripple_full_bump_map[indx].x/10, 0, game_width-1);
             int ny = rafgl_clampi(y + ripple_full_bump_map[indx].y/10, 0, game_height-1);
-            pixel_at_m(raster,x,y) = pixel_at_m(original, nx , ny);
+            pixel_at_m(raster,x,y) = pixel_at_m(ripple_temp_raster, nx , ny);
         }
     }
 }

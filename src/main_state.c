@@ -28,6 +28,7 @@ void main_state_init(GLFWwindow *window, void *args, int width, int height)
 
     ripple_bump_map_init();
     ripple_array_init();
+    postfx_init();
     
     game_center_x = game_width/2.0f;
     game_center_y = game_height/2.0f;
