@@ -70,7 +70,7 @@ void ripple_update(ripple_t *r, float delta_time) {
     r->speed *= RIPPLE_DAMP;
     r->range += r->speed * delta_time;
     r->range = rafgl_min_m(r->range, RIPPLE_MAX_STRENGTH-1);
-    int range = (int)r->range / 2.0f;
+    int range = (int)r->range / 4.0f;
     int thickness = (int)(range*0.45f);
     float a = 1.0f - (float)r->age / (float)r->lifetime;
     
@@ -82,8 +82,8 @@ void ripple_update(ripple_t *r, float delta_time) {
         gaus_map[RIPPLE_MAX_STRENGTH][thickness] = 1;
     }
 
-    int rx = r->x / 2;
-    int ry = r->y / 2;
+    int rx = r->x / 4;
+    int ry = r->y / 4;
     int r2_outer = range * range;
     int r2_inner = (range - thickness * 2) * (range - thickness * 2);
 
@@ -123,8 +123,8 @@ void ripple_update(ripple_t *r, float delta_time) {
 
 
 void ripple_bump_map_init() {
-    bmap_width = game_width/2;
-    bmap_height = game_height/2;
+    bmap_width = game_width/4;
+    bmap_height = game_height/4;
     ripple_bump_map = malloc(sizeof(pair_t)*bmap_width*bmap_height);
     ripple_bump_map_reset();
 
@@ -179,14 +179,21 @@ void ripple_bump_map_apply() {
     box_blur_h(ripple_bump_map, temp_blur_map, bmap_width, bmap_height);
     box_blur_v(temp_blur_map, ripple_bump_map, bmap_width, bmap_height);
 
-    for (int y=0; y<bmap_height; y++) {
-        for(int x=0; x<bmap_width; x++) {
-            ripple_full_bump_map[x*2 + y*2*game_width] = ripple_bump_map[x + y*bmap_width];
-            ripple_full_bump_map[x*2 + (y*2+1)*game_width] = ripple_bump_map[x + y*bmap_width];
-            ripple_full_bump_map[x*2+1 + y*2*game_width] = ripple_bump_map[x + y*bmap_width];
-            ripple_full_bump_map[x*2+1 + (y*2+1)*game_width] = ripple_bump_map[x + y*bmap_width];
+    for (int y = 0; y < bmap_height; y++) {
+    for (int x = 0; x < bmap_width; x++) {
+        pair_t val = ripple_bump_map[x + y * bmap_width];
+
+        int target_x_start = x * 4;
+        int target_y_start = y * 4;
+
+        for (int row = 0; row < 4; row++) {
+            int row_offset = (target_y_start + row) * game_width;
+            for (int col = 0; col < 4; col++) {
+                ripple_full_bump_map[target_x_start + col + row_offset] = val;
+            }
         }
     }
+}
 
     rafgl_raster_t original;
     rafgl_raster_init(&original, game_height, game_width);
