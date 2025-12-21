@@ -49,6 +49,7 @@ void main_state_update(GLFWwindow *window, float delta_time, rafgl_game_data_t *
     player_update(&player, delta_time, game_data);
     fish_array_update(delta_time, game_data);
     ripple_array_update(delta_time);
+    postfx_wave_update(delta_time);
 
     //COLLISION CHECKS
     detect_collision(delta_time);
@@ -61,7 +62,10 @@ void main_state_update(GLFWwindow *window, float delta_time, rafgl_game_data_t *
     ripple_bump_map_apply();
     fish_array_render();
     player_render(&player);
+    postfx_wave_render();
     return;
+
+    // draw ripple bump map
     for (int y = 0; y < game_height; y++) {
     for (int x = 0; x < game_width; x++) {
         int indx = x + y * game_width;
@@ -69,7 +73,6 @@ void main_state_update(GLFWwindow *window, float delta_time, rafgl_game_data_t *
         int bx = ripple_full_bump_map[indx].x;
         int by = ripple_full_bump_map[indx].y;
 
-        /* map [-R..R] -> [0..255] */
         int rx = (bx * 128) / 64 + 128;
         int ry = (by * 128) / 64 + 128;
 
