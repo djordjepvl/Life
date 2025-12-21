@@ -5,6 +5,7 @@
 #define RIPPLE_MAX_LIFE 5.0f
 #define RIPPLE_BASE_SPEED 700
 #define RIPPLE_DAMP 0.96f
+#define RIPPLE_SHARPNESS 6.0f
 typedef struct {
     int enabled;
     int x,y;
@@ -29,9 +30,11 @@ void ripple_update(ripple_t *r, float delta_time);
 
 
 typedef struct {
-    int x, y;
+    int32_t x, y;
 } pair_t;
 
+#define BMAP_SHIFT 3
+#define BMAP_SCALE 8
 extern int bmap_width, bmap_height;
 extern pair_t *ripple_bump_map;
 extern rafgl_raster_t ripple_temp_raster;

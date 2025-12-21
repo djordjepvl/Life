@@ -83,14 +83,14 @@ void ripple_update(ripple_t *r, float delta_time) {
     if (!gaus_map[RIPPLE_MAX_STRENGTH][thickness]) {
         for (int x = range - thickness * 2; x <= range; x++) {
             float t = (float)(x - (range - thickness));
-            gaus_map[x][thickness] = powf(4.0f, -t * t / (float)thickness) * (1 << 16);
+            gaus_map[x][thickness] = powf(RIPPLE_SHARPNESS, -t * t / (float)thickness) * (1 << 16);
         }
         gaus_map[RIPPLE_MAX_STRENGTH][thickness] = 1;
     }
     a = intensity * intensity * intensity;
 
-    int rx = r->x / 8;
-    int ry = r->y / 8;
+    int rx = r->x / BMAP_SCALE;
+    int ry = r->y / BMAP_SCALE;
     int r2_outer = range * range;
     int r2_inner = (range - thickness * 2) * (range - thickness * 2);
 
@@ -128,8 +128,8 @@ void ripple_update(ripple_t *r, float delta_time) {
 
 
 void ripple_bump_map_init() {
-    bmap_width = game_width/8;
-    bmap_height = game_height/8;
+    bmap_width = game_width/BMAP_SCALE;
+    bmap_height = game_height/BMAP_SCALE;
     ripple_bump_map = malloc(sizeof(pair_t)*bmap_width*bmap_height);
     ripple_bump_map_reset();
 
@@ -174,8 +174,6 @@ void box_blur_v(pair_t *src, pair_t *dst, int w, int h, int radius) {
         }
     }
 }
-#define BMAP_SHIFT 3
-#define BMAP_SCALE 8
 
 void ripple_bump_map_apply() {
     box_blur_h(ripple_bump_map, temp_blur_map, bmap_width, bmap_height, 3);
