@@ -12,11 +12,14 @@ fish_t fish[FISH_MAX_COUNT];
 
 
 float game_center_x, game_center_y;
+float cam_x, cam_y;
+float cam_target_x, cam_target_y;
 
 void main_state_init(GLFWwindow *window, void *args, int width, int height)
 {
     game_width = width;
     game_height = height;
+    cam_x = cam_y = 0.0f;
     rafgl_raster_init(&raster, game_width, game_height);
     rafgl_texture_init(&tex);
     assets_init();
@@ -52,6 +55,12 @@ void main_state_update(GLFWwindow *window, float delta_time, rafgl_game_data_t *
     ripple_array_update(delta_time);
     postfx_wave_update(delta_time);
 
+    //UPDATE CAMERA
+    cam_target_x = (player.x - game_center_x) * CAM_FOLLOW_PLAYER;
+    cam_target_y = (player.y - game_center_y) * CAM_FOLLOW_PLAYER;
+    cam_x = rafgl_lerpf(cam_x, cam_target_x, CAM_SPEED);
+    cam_y = rafgl_lerpf(cam_y, cam_target_y, CAM_SPEED);
+
     //COLLISION CHECKS
     detect_collision(delta_time);
 
@@ -59,7 +68,7 @@ void main_state_update(GLFWwindow *window, float delta_time, rafgl_game_data_t *
     //printMousePos(game_data);
 
     //FILLING RASTER
-    raster_draw_scaled_asset(&raster, &testBackground, 0, 0, game_width, game_height, game_center_x, game_center_y, 0, 1);
+    raster_draw_scaled_asset(&raster, &testBackground, 0, 0, game_width*1.1f, game_height*1.1f, game_center_x+cam_x*PRLX_BG, game_center_y+cam_y*PRLX_BG, 0, 1);
     ripple_bump_map_apply();
     fish_array_render();
     player_render(&player);
@@ -122,6 +131,8 @@ void handle_collision(int i, float delta_time) {
     }
     else {
         player.enabled = 0;
+        player.x = game_center_x;
+        player.y = game_center_y;
         fish_set_size(&fish[i], fish[i].size + player.size * EAT_MULTIPLIER);
     }
 }

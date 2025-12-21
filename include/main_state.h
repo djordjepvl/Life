@@ -30,6 +30,11 @@ void printMousePos(rafgl_game_data_t *game_data);
 
 //Main state variables
 extern int game_height, game_width;
+extern float cam_x, cam_y;
+#define CAM_SPEED 0.1f
+#define CAM_FOLLOW_PLAYER 0.2f
+#define PRLX_BG 0.3f
+#define PRLX_FG 0.8f
 
 extern rafgl_spritesheet_t testsprite;
 extern rafgl_raster_t raster;

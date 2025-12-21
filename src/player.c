@@ -32,9 +32,9 @@ void player_update(player_t *p, float delta_time, rafgl_game_data_t *game_data) 
 void player_render(player_t *p) {
     if (!p->enabled) return;
     if (p->width > 1000)
-        raster_draw_scaled_asset(&raster, &p->main_asset, 0, 0, p->width+20.0f, p->height+10.0f, p->x, p->y, p->horizontal_flip, 0);
+        raster_draw_scaled_asset(&raster, &p->main_asset, 0, 0, p->width+20.0f, p->height+10.0f, p->x+cam_x*PRLX_FG, p->y+cam_y*PRLX_FG, p->horizontal_flip, 0);
     else
-        raster_draw_scaled_asset(&raster, &p->main_asset, 0, 0, p->width+20.0f, p->height+10.0f, p->x, p->y, p->horizontal_flip, 1);
+        raster_draw_scaled_asset(&raster, &p->main_asset, 0, 0, p->width+20.0f, p->height+10.0f, p->x+cam_x*PRLX_FG, p->y+cam_y*PRLX_FG, p->horizontal_flip, 1);
 }
 
 

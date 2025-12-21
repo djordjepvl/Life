@@ -66,7 +66,7 @@ void fish_update(fish_t *f, float delta_time, rafgl_game_data_t *game_data) {
 
 void fish_render(fish_t *f) {
     if (!f->enabled) return;
-    raster_draw_scaled_asset(&raster, &f->main_asset, 0, 0, f->width+20.0f, f->height+10.0f, f->x, f->y, (f->dx > 0.0f), 0);
+    raster_draw_scaled_asset(&raster, &f->main_asset, 0, 0, f->width+20.0f, f->height+10.0f, f->x+cam_x*PRLX_FG, f->y+cam_y*PRLX_FG, (f->dx > 0.0f), 0);
 }
 
 void fish_random_spawn(fish_t *f) {
