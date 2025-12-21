@@ -89,8 +89,8 @@ void ripple_update(ripple_t *r, float delta_time) {
     }
     a = intensity * intensity * intensity;
 
-    int rx = r->x / 4;
-    int ry = r->y / 4;
+    int rx = r->x / 8;
+    int ry = r->y / 8;
     int r2_outer = range * range;
     int r2_inner = (range - thickness * 2) * (range - thickness * 2);
 
@@ -119,8 +119,8 @@ void ripple_update(ripple_t *r, float delta_time) {
             offx = (offx * a);
             offy = (offy * a);
 
-            ripple_bump_map[indx].x += offx;
-            ripple_bump_map[indx].y += offy;
+            ripple_bump_map[indx].x += offx>>2;
+            ripple_bump_map[indx].y += offy>>2;
         }
     }
 }
@@ -128,8 +128,8 @@ void ripple_update(ripple_t *r, float delta_time) {
 
 
 void ripple_bump_map_init() {
-    bmap_width = game_width/4;
-    bmap_height = game_height/4;
+    bmap_width = game_width/8;
+    bmap_height = game_height/8;
     ripple_bump_map = malloc(sizeof(pair_t)*bmap_width*bmap_height);
     ripple_bump_map_reset();
 
@@ -140,8 +140,7 @@ void ripple_bump_map_reset() {
     memset(ripple_bump_map, 0, sizeof(pair_t) * bmap_width * bmap_height);
 }
 
-void box_blur_h(pair_t *src, pair_t *dst, int w, int h) {
-    int radius = 2;
+void box_blur_h(pair_t *src, pair_t *dst, int w, int h, int radius) {
     for (int y = 0; y < h; y++) {
         for (int x = 0; x < w; x++) {
             int sum_x = 0, sum_y = 0, count = 0;
@@ -158,8 +157,7 @@ void box_blur_h(pair_t *src, pair_t *dst, int w, int h) {
         }
     }
 }
-void box_blur_v(pair_t *src, pair_t *dst, int w, int h) {
-    int radius = 2;
+void box_blur_v(pair_t *src, pair_t *dst, int w, int h, int radius) {
     for (int x = 0; x < w; x++) {
         for (int y = 0; y < h; y++) {
             int sum_x = 0, sum_y = 0, count = 0;
@@ -176,18 +174,51 @@ void box_blur_v(pair_t *src, pair_t *dst, int w, int h) {
         }
     }
 }
+#define BMAP_SHIFT 3
+#define BMAP_SCALE 8
 
 void ripple_bump_map_apply() {
-    box_blur_h(ripple_bump_map, temp_blur_map, bmap_width, bmap_height);
-    box_blur_v(temp_blur_map, ripple_bump_map, bmap_width, bmap_height);
+    box_blur_h(ripple_bump_map, temp_blur_map, bmap_width, bmap_height, 3);
+    box_blur_v(temp_blur_map, ripple_bump_map, bmap_width, bmap_height, 2);
+
 
     rafgl_raster_copy(&ripple_temp_raster, &raster);
-    for (int y=0; y<game_height; y++) {
-        for(int x=0; x<game_width; x++) {
-            int indx = (x >> 2) + (y >> 2) * bmap_width;
-            int nx = rafgl_clampi(x + ripple_bump_map[indx].x, 0, game_width-1);
-            int ny = rafgl_clampi(y + ripple_bump_map[indx].y, 0, game_height-1);
-            pixel_at_m(raster,x,y) = pixel_at_m(ripple_temp_raster, nx , ny);
+    
+    for (int y = 0; y < game_height; y++) {
+        int by = y >> BMAP_SHIFT;
+        if (by >= bmap_height - 1) by = bmap_height - 2;
+
+        int fy = y & (BMAP_SCALE - 1);
+        int row_base = by * bmap_width;
+
+        for (int x = 0; x < game_width; x++) {
+            int bx = x >> BMAP_SHIFT;
+            if (bx >= bmap_width - 1) bx = bmap_width - 2;
+
+            int fx = x & (BMAP_SCALE - 1);
+
+            pair_t b00 = ripple_bump_map[row_base + bx];
+            pair_t b10 = ripple_bump_map[row_base + bx + 1];
+            pair_t b01 = ripple_bump_map[row_base + bx + bmap_width];
+            pair_t b11 = ripple_bump_map[row_base + bx + bmap_width + 1];
+
+            int ix0 = b00.x + ((b10.x - b00.x) * fx) / BMAP_SCALE;
+            int ix1 = b01.x + ((b11.x - b01.x) * fx) / BMAP_SCALE;
+            int bx_interp = ix0 + ((ix1 - ix0) * fy) / BMAP_SCALE;
+
+            int iy0 = b00.y + ((b10.y - b00.y) * fx) / BMAP_SCALE;
+            int iy1 = b01.y + ((b11.y - b01.y) * fx) / BMAP_SCALE;
+            int by_interp = iy0 + ((iy1 - iy0) * fy) / BMAP_SCALE;
+
+            int nx = x + bx_interp;
+            int ny = y + by_interp;
+
+            if ((unsigned)nx >= game_width)  nx = x;
+            if ((unsigned)ny >= game_height) ny = y;
+
+            pixel_at_m(raster, x, y) =
+                pixel_at_m(ripple_temp_raster, nx, ny);
         }
     }
+    
 }
